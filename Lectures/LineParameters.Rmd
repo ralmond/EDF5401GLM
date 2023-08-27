@@ -1,0 +1,45 @@
+---
+title: "Simple Linear Model"
+author: "Russell Almond"
+date: "2023-08-27"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+## Generate some data
+
+```{r data}
+N <- 100
+b0 <- 5
+b1 <- 1
+see <- .8
+X <- runif(N)*10
+Y <- b0 + b1*X + .8*rnorm(N)
+dat <- data.frame(x=X,y=Y)
+```
+
+
+```{r pickParams, echo=FALSE}
+inputPanel(
+  sliderInput("bb0", label = "Intercept:",
+              min = -5, max=15, value=5, step=0.25),
+  sliderInput("bb1", label = "Slope",
+              min = -2, max = 2, value = 0, step = 0.2),
+  sliderInput("see", label ="Residual Standard Error",
+              min = 0, max=2, value = 0, step = .1)
+)
+
+renderPlot({
+  ggplot(dat,aes(x=x,y=y)) + geom_point() + 
+    geom_abline(slope=input$bb1,intercept=input$bb0) +
+    geom_abline(slope=input$bb1,intercept=input$bb0+2*input$see,
+                    color="grey",lty="dashed") +
+    geom_abline(slope=input$bb1,intercept=input$bb0-2*input$see,
+                    color="grey",lty="dashed")
+})
+```

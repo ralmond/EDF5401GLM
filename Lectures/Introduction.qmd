@@ -1,23 +1,35 @@
 ---
 title: "Generalized Linear Models"
-format: revealjs
+format: pdf
 ---
 
-# Generalized Linear Models
+# Course Description
 
 
 **EDF 5401: Generalized Linear Models**
 
-## Rumor: Santa is Frequentist
+## Who am I?
 
-![PhD Comics 1457](http://www.phdcomics.com/comics/archive/phd121911s.gif)
+Russell Almond
 
-Image Credit: <http://www.phdcomics.com/comics.php?f=1457>
+
+-   <http://ralmond.net/>
+-   Email: <ralmond@fsu.edu>
+-   Office Hours, By appointment (appointment link: https://doodle.com/mm/russellalmond/book-a-time)
+-   https://fsu.zoom.us/my/ralmond
+-   Coffee Hour:  TBD (Vote for time at:
+https://doodle.com/poll/nc3qvaf2i2rs4qti?utm_source=poll&utm_medium=link)
+-   Tea Time, TTH 4:30--5:00
+-   STB 3204-J
+- Has ADHD
+
+Questions welcome during lectures (speak up if on Zoom)
+
 
 
 ## Who Am I?
 
-![Russell Almond](img/RGASanta.jpg)
+![Russell Almond](img/ClassicalBassoonist.jpg)
 
 [Russell]{.underline} Almond (thee, thou)
 
@@ -28,39 +40,55 @@ Image Credit: <http://www.phdcomics.com/comics.php?f=1457>
 -   Email: [ralmond\@fsu.edu](mailto:ralmond@fsu.edu){.email}
 -   Office Hours, By appointment [appointment link](https://doodle.com/mm/russellalmond/book-a-time)
 -   Zoom: <https://fsu.zoom.us/my/ralmond>
--   Tea Time, TTH 4:30--5:00
+-   Coffee Hour:  MW 10:30--11:00
+-   Tea Time, MW 4:30--5:00
 -   STB 3204-J
 -   Has ADHD
 
-
 Questions welcome during lectures (speak up if on Zoom)
 
-## Textbook
+## Textbooks
 
-![Textbook](https://covers.elsevier.com/200/9780124058880.jpg)
+### Required
+
+![CCWA](https://images.tandf.co.uk/common/jackets/crclarge/978113801/9781138012387.jpg)
+
+Cohen, J., Cohen, P., West, S. & Aiken, L. S. (2003). _Applied multiple regression/correlation analysis for the behavioral sciences (3rd ed)_.  Lawrence Erlbaum Associates, Inc. ISBN 9780203774441
+
+This is called CCWA in the readings list.
+
+### Recommended
+
+![LB](https://us.sagepub.com/sites/default/files/upm-assets/styles/sage_thumbnail_width_150px/dotfeed/68169_book_item_68169.jpg)
+
+Lewis-Beck, C. and Lewis-Beck, M. S. (1980). _Applied regression: An introduction._ Sage Publications. (ISBN e-book: 9781483381480, Paperback: 9781483381473)
+
+Called LB in the reading lists.
+
+![O'Connell](https://us.sagepub.com/sites/default/files/upm-assets/styles/sage_thumbnail_width_150px/dotfeed/6366_book_item_6366.jpg)
+
+O’Connell, A. A. (2006). Logistic regression models for ordinal response variables. Sage Publications. (ISBN e-book: 9781452210834, paperback: 9780761929895)
 
 
-Kruchke, John (2014). *Doing Bayesian Data Analysis.* Elsevier Sicence and Technology. ISBN 978-0-12-405888-0.
+### More suggestions 
 
-## Other Texts
+All of these books are available online.
 
--   Gelman, A., Carlin, J. B., Stern, H. S. & Rubin, D. B. (1995/2003). *Bayesian data analysis.* Chapman and Hall.
+Gelman, A., Hill, J. & Vehtari, A. (2020).  _Regression and Other Stories._  Cambridge University Press.  URL: <https://avehtari.github.io/ROS-Examples/>  (This text is used for EDF 5484.)
 
-    -   Good reference on Bayesian statistics
 
--   Brooks, S., Gelman, A, Jones G. L., Meng, X-L (2011). *Handbook of Markov Chain Monte Carlo.* CRC Press.
+Navaro, DJ (2018).  Learning Statistics with R:  A tutorial for psychology students and other beginners.  Version 0.6.1 URL:  <https://learningstatisticswithr-bookdown.netlify.app/>
 
-    -   Paper Collection on MCMC
+Wickham, H., Cetinkaya-Rundel, M., & Grolemund, G. (2023).  R for Data Science.   O'Reilly. ISBN 978-1492097402, URL:  <https://r4ds.hadley.nz>
 
--   Gilks, W.; Richardson, S. & Spiegelhalter, D. (ed.) (1995) *Markov Chain Monte Carlo in Practice* (Interdisciplinary Statistics) Chapman & Hall/CRC .
+Leemis, L. M. (2023) Statistical Modeling: Regression, Survival Analysis, and Time Series AnalysisLinks to an external site., 2023, Lightning Source, ISBN: 978-0-9829174-3-5.  
 
-    -   Paper collection on MCMC
+* [Chapter 1](http://www.math.wm.edu/~leemis/otext1.pdf): Simple Linear Regression
 
-    -   First couple of chapters are useful intro references
+* [Chapter 2](http://www.math.wm.edu/~leemis/otext2.pdf): Inference in Simple Linear Regression
 
-Liu, J. S. (2002). *Monte Carlo strategies in scientific computing.* Springer.
+* [Chapter 3](http://www.math.wm.edu/~leemis/otext2.pdf): Topics in Regression
 
--   Covers more exotic strategies (e.g., Importance Sampling, Particle Filter, more exotic MCMC).
 
 ## Additional Readings
 
@@ -70,32 +98,79 @@ Andy Gelman's Blog: <https://andrewgelman.com>
 
 Will do most work through Posit Studio:
 
-https://posit.cloud/spaces/323676/join?access_code=-cWB4jXG0_PEIPItmrQWUzfsYsW4GZhTToU-Ork0
+<https://posit.cloud/spaces/404203/join?access_code=pvsD1nGmC6ryEb0Nzhy8hEyQiDgakCGsgYys_Mop>
 
 Free Student Account.
 
 Other Tools:
 
+### R
 
-* R <https://www.r-project.org>
-* Stan <https://mc-stan.org>
-* JAGS <https://sourceforge.net/projects/mcmc-jags/>
+The R software is available through CRAN (Comprehensive R Archive Network), <https://cloud.r-project.org/>. 
 
+R is a programming language and command line tool.  Most people use the RStudio integrated development environment.  This is also available for free at <https://posit.co/products/open-source/rstudio/>.
 
-## Class Project
+[Installing R](https://pluto.coe.fsu.edu/rdemos/RIntro/InstallingR.Rmd)
 
-Part 1 (Due by Spring Break).
+[R and R Studio](https://pluto.coe.fsu.edu/rdemos/R_and_R_Studio_Presentation2.Rmd)
 
-Pick a data set and do a "classical" analysis.
+### SPSS
 
-Part 2 (Due by End of Semester)
+SPSS is rather expensive and is only available with time-limited licenses.  SPSS is available on every computer in labs in College of Education. Students may also access to SPSS through FSU virtual lab. The FSU virtual lab can be accessed via:  <https://its.fsu.edu/service-catalog/end-point-computing/myfsuvlab>
 
-Fit a Bayesian model to those data.
+For help, search on YouTube "SPSS Regresssion".
+
+## Flipped Class
+
+1) View lecture videos before class.
+
+2) Ask questions in class or on discussion board
+
+3) Will work on Case Studies in class.
+
+Video Lectures in SPSS, will use R (through Posit Studio) in class.
+
+## Course Grading
+
+* Participation (10%)
+  - Self-reflections (5%)
+    - On Qualtrics (link on Canvas)
+    - For you to monitor your own learning, and provide feedback to me.
+    - If you are having difficulty with a concept:  Ask.
+  - Case Studies (5%)
+    - Done in class through Posit cloud.
+    - There will be an SPSS alternative.
+    - Post note in canvas about where your solution is.
+
+* Homework (40%)
+  - Four Problem Sets 
+  - May work in collaboration (up to 3 people).
+  - Is officially late after grading is complete.
+  
+* Exams (50%)
+ - Take home
+ - 3 day window
+ - Will require access to R or SPSS
+ - No collaboration
+ 
+## Due dates and late work
+
+Due dates are posted on Canvas.
+
+When changes are necessary (usually extending deadline), these will be posted on canvas.
+
+Participation activities can be completed up to the end of the class; but keeping up is helpful for me and you.
+
+Homework late homework is accepted, however, if it is turned in after the answer key is posted on Canvas, the score will be reduced by 25%.
+
+** Last Day for All Homework, Friday December 8, 2023.**
+
+Exams are due on the day posted on Canvas.  Students who are unable to complete the exam by the due date must contact the instructor to make arrangements before the due date, or they will receive no credit.
 
 
 ## How's My Teaching?
 
-Dial: 644-5203
+Dial: ~~644-5203~~
 
 Email: [ralmond\@fsu.edu](mailto:ralmond@fsu.edu){.email}
 
@@ -131,215 +206,315 @@ Confusion is a part of learning
 Be specific about what is confusing you
 
 
-# An Introduction to Bayesian Thinking
+# Generalized Linear Models
 
-## Quiz 1
+## What is a Statistic?
 
+A _statistic_ is an operator which summarizes a data set.  This could be a numerical summary or a graphical summary.
 
-A person takes an aptitude test that has an SEM of 5, and gets a score of 80.  The test scores are approximately normally distributed in the population of interest. 
+_Statistics_ is the study of statiscs.
 
-Confidence Interval:  
+## What are Data?
 
-$$ 80 \pm 2\cdot 5 = (70, 90)$$
+Data (a plural noun) _are_ a collection of observations about a collection of subjects.
 
-Use the classical Neyman-Pearson definition of a confidence interval, which is larger?
+Usually put into a spreadsheet (called data frame or tibble in R).
 
+  * Rows, $i$, represent individuals (unit on which measurement was made)
+    - Total number of rows is $N$ (population) or $n$ (sample).
+  * Columns, $j$, represent variables--different measurements.
+    - Total number of columns in $J$
+  
+If the data set is $\textbf{X}$, then the value of Variable $j$ for Individual $i$ is $x_{i,j}$.  
 
-A) The probability that the person't true aptitute is between 70 and 90
-B) 95 \%
-C) A and B are about the same.
-D) Can't tell from the information provided.
+* In R, use the expression `X[i,j]` to extract values from a matrix, data frame, or tibble.
 
-## Parameters
+[Matrixes are bold upper case, values in the matrix are lower case]
 
-* In the Neyman-Pearson framework, parameters are fixed but unknown.
+The vector $\boldsymbol{x}_i = (x_{i,1},\ldots,x_{i,J})$ is the set of all measurements on Individual $i$.  (Vectors are in bold face).
 
-* All of the probability comes from the construction of the interval.
+* In R, use `X[i,]` to extract an observation vector.
 
-* The classical confidence interval provides a mathematically precise answer to the wrong question.
+The response to an unstated individual on Variable $j$ is written $Y_j$ if it is a random variable, or $y_j$ is if is the value of a random variable.
 
+* In R, can select all values on a particular value using `X[,j]` or `X$j`. 
+  - The dollar sign notation expects a name, not a number, and only works for data frames and tibbles, but not for matrixes.
+  - For tibbles, the dollar sign notation is usually better as it extracts just the variable.
+  
+## Sum notation
 
+$$ \sum_{i=1}^{N} x_i = \sum_i x_i = x_1 + x_2 + \cdots x_n$$
+This can be used sum a column (summation index $i$) or row (summation index $j$)
 
-## Parameters
+In R, this is a `for` loop:
 
--   In the Neyman-Pearson framework, parameters are fixed but unknown.
+```{r sums}
+x <- 1:5
+x
+xsum <- 0
+for (i in 1:length(x)) {
+  ## Code in braces will be repeated for every value of i
+  xsum <- xsum + x[i]
+}
+xsum
+```
 
--   All of the probability comes from the construction of the interval.
+The `sum()` function in R does this implicitly.  Thus `sum(x)` is faster,
+to both code and run.  Many statistic functions in R work the same way, e.g., `mean()`, `median()`, `sd()`.
 
--   The classical confidence interval provides a mathematically precise answer to the wrong question.
+* Beware of `NA`s, missing data, which are contagious.  So `mean(x)` is 
+  `NA` if any element of `x` is `NA`.  
+* Use `mean(x,na.rm=TRUE)` to get the mean of the non-missing cases.
 
-## Fiducial Inference
+Using a matrix or a data frame, we usually are talking about row sums 
+and column sums.
 
-R.A. Fisher's, seldom used
+* Row sums:  `sum(X[i,])`, `rowSums(X)`, `apply(X,1,sum)`
+* Row means:  `mean(X[i,])`, `rowMeans(X)`, `apply(X,1,mean,na.rm=TRUE)`
+* Column sums:  `sum(X[,j])`, `colSums(X)`, `apply(X,2,sum)`
+* Column means:  `mean(X[,m])`, `colMeans(X)`, `apply(X,2,mean,na.rm=TRUE)`
 
-$$ X = T + e $$
+R only provides built-in `rowXXX` function for mean and sums, but the other
+two methods work with any function.
+  
+## Distributions
 
-$$ e \sim N(0,5) $$
+$F(x) = \Pr(X \leq x)$
 
-$e$ is a *pivotal variable*
+Also write $ X \sim F(\cdot)$
 
-$$ X=80; \qquad T \sim N(80, 5) $$
+Often a distribution has parameters (usually written as Greek letters).  
 
-## Problems with Fiducial Inference
+  * $F(x|\theta)$ -- Bayesian style
+  * $F(x;\theta)$ -- Frequentist style
+  * $X \sim N(\mu,\sigma)$ -- $X$ is normally distributed with mean $\mu$
+  and standard deviation $\sigma$.  (Check carefully, authors sometimes
+  uses variance,  $\sigma^2$ or precision $\sigma^{-2}$ instead of s.d.)
+  
+A joint distribution is over two or more variables:
 
--   Pivotal variables come with rather strong distributional assumptions
+$F(x,y) = \Pr(X \leq x \wedge Y \leq y)$, where $\wedge$ means _and_.
 
--   Requires custom model for each problem (These problems are common with Bayesian statistics)
+$\boldsymbol{X} \sim N(\boldsymbol{\mu},\Sigma)$
+## 4 Moments of a Distribution
 
--   Fiducial model for Binomial produces upper/lower probability bounds, not probability (Dempster, 1966).
+* Center: Mean, $E[X]$, $\bar X$ `mean(x)`
+  - Median, `median(x)`; trimmed mean `mean(x,trim=0.05)`
 
-## Bayesian Solution
+* Spread: Variance, $\textrm{Var}(X)$, $\sigma^2_X$, $s^2_X$, `var(X)`
+  - Standard Deviation, $\sigma_X$, $s_X$, `sd(X)`; Precision,
+    $\sigma^{-2}_X$
+  - Interquartile range (IQR) `IQR(x)`; median absolute deviation (MAD), `mad(x)`
+  
+* Skewness, `DescTools::Skew()`
+  - Positive skewness has long tail to the right, negative to the left.
 
--   Parameters are random variables
+```{r betas}
+curve(dbeta(x,5,5),xlim=c(0,1),ylim=c(0,3.0),lty=1)
+curve(dbeta(x,3,7),lty=2,add=TRUE)
+curve(dbeta(x,7,3),lty=3,add=TRUE)
+```
 
--   Complete Bayesian model:
+* Kurtosis, `DescTools::Kurt()`
+  - normal is like normal distribution
+  - platykurtic (flat) is usually not a problem
+  - leptokurtic (heavy tails) is a problem because of lots of outliers
+  
+```{r kurtosis}
+curve(dnorm(x),xlim=c(-3,3),ylim=c(0, .6),lty=1)
+curve(dunif((x+3)/6)/6,lty=2,add=TRUE)
+curve(dt(x,df=3),lty=3,add=TRUE)
+```
 
-    -   Everything is fixed and known or has a specified probability distribution
 
--   *a priori* (before seeing data) distribution
+## Samples
 
--   Distribution of data given parameters is *likelihood*
+A sample is a subset of the individuals in a population.
 
--   *a posteriori* (prior + likelihood) distribution calculated using Bayes theorem
+Under certain conditions, sample statistic converges to population statistic as the size of the sample increases (Law of Large Numbers).
 
-## Example
+So if $t(\textbf{X})$ is a statistic, write $\hat t$ or $\tilde t$ for estimate.
 
--   $X$ -- score on test
--   $\theta$ -- ability (true score)
--   Prior (population distribution) $$ \theta \sim N(70,10) $$
--   Likelihood $$ X| \theta \sim N(\theta,5) $$
+Types of Samples
 
-## Posterior
+* Random Samples
 
--   Generally, denominator of Bayes rule is a messy integral.
+  - Simple Random Sample -- All individuals have an equal probability of being chosen
 
--   Conjugate (normal-normal) case, posterior is also normal.
+  - Stratified sample -- Break population into groups (strata) and then do a SRS in each strata.
+  
+  - Cluster sample -- Individuals come in clusters (e.g., students in a classroom).  Randomly sample clusters, but take everybody in the cluster.
+  
+  - Sample weights -- generally related ot the probability of being selected; used with more complex sampling methods.
 
--   Posterior precision: Sum the precisions ($1/s^2$)
+* Non-random Samples
 
-$$ \left ( \frac{1}{10} \right)^2 + \left ( \frac{1}{5} \right )^2 = .01 + .04 = .05 $$
+  - Systematic Sample -- Individuals chosen accoridng to some deterministic rule.
 
--   Posterior Mean: Weighted average of prior and likelihood
+  - Convenience Sample -- Pick readily available individuals
 
-$$ \frac{.01}{.05} 70 + \frac{.04}{.05} 80 = 78 $$
+  - Quota samples -- Pick the first $n$ volunteers (often in strata)
 
-## Shrinkage Estimator
+* Missing Data
 
--   Shrink data estimate towards population mean
+  - _Missing Completely at Random_ -- complete cases are a SRS of all data.
+  
+    - Complete case analysis works.
+  
+  - _Missing at Random_ -- complete cases are a stratified sample of all data
+    - Can use various techniques to adjust for missingness
+    
+  - _Non-ignorable Missingness_ --  need a more complex model for missingness.
+  
 
--   Biased, but has lower m.s.e. than MLE
+## Properties of an estimate
 
--   Bayesian probabilities are a state of information
+A statistic $T$ from a sample is a random variable.  Let $T^{*}$ be
+the value of the statistic in the population.
 
-    -   Prior: contains only population information
-    -   Likelihood: Information from data
-    -   Posterior: combined estimate
-    -   Weighting is by precision
+* bias -- a systematic error, $E[T-T^{*}]$
 
-## Credibility Interval
+* standard error -- standard deviation of the statistic (if we could take
+the sample over and over again), $s_{T} = \sqrt{\textrm{Var}(T)}$
 
--   Pick a level $\alpha$
+* robustness/resistance -- how sensitive the statistic is to outliers or
+other model assumptions
 
--   Find $\alpha/2$ and $1-\alpha/2$ quantiles of posterior
+* efficiency -- how good a standard error can be achieve given the sample size.
 
--   Posterior mean $\pm z_{1-\alpha/2} \cdot$ posterior sd
+## Representative Sample
 
--   \$ 78 \pm 2\*4.5\$ (95% c.i.)
+Fundamental equation of statistics
 
--   Really is a 95% chance $\theta$ is between 69 and 87.
+$$ \textrm{Estimate} = \textrm{Estimand} + \textrm{bias} + \textrm{residual error} $$
 
-## Problems with Bayesian Statistics
+The residual error had mean zero, and is characterized by its standard 
+error.  
 
--   Resistance to idea of subjective probabilities
+Generally, the residual error is easier to deal with than bias.
 
--   Where do priors come from?
+A _representative sample_ is one which will produce an unbiased estimate.
 
-    -   Producing realistic priors is hard work
+Mean Square Error includes both bias and random error.
 
-    -   Rev. Bayes never published his paper because he had difficulty with his *a priori* assumption
+$$ \textrm{MSE}(T) = \textrm{bias}(T)^2 + s^2_{T} $$
 
--   In general Bayes theorem creates very difficult high dimensional integrals
+## What is a model?
 
-    -   EM: Finding maximum *a posteriori* (MAP) point does not require integral
+A model is a function we can use to make predictions.  
 
-    -   MCMC: Simulate from posterior and then do Monte Carlo integration
+$Y$ is the _dependent variable_, the target of prediction.
 
-## MLE and Flat Priors
+$\textbf{X}$ is a set of variables which will be used to predict $Y$,
+_independent variables_.
 
--   MAP and MLE estimates are similar
 
--   If prior is uniform, MAP and MLE are the same.
+## Coefficients of a model
 
--   Flat normal prior $$ \theta \sim N(0,\infty) $$
+Let $f(x) = b_0 + b_1 x$
 
-    -   Limit of normal distribution as variance goes to infinity.
+$$E[Y|b_0,b_1] = b_0 + b_1 X$$
+This model is a line;  $b_0$ is the intercept and $b_1$ is the slope.
+In general, $f(\boldsymbol{x}) = b_0 + b_1 x_1 + b_2 x_2 + \cdots$ is a _linear predictor_.
 
-$$ \theta|X \sim N(80,5) $$
+The _fitted value_ or _predicted value_ for $Y_i$ is $f(\boldsymbol{x}_i)$, often written $\hat {Y_i}$ or $\tilde {Y_i}$.
 
-## Proper priors prevent problems
+## Error model and prediction error
 
--   Instead of the classical test theory model, assume we have an IRT model
+To get a full model, we need to express how $Y$ might deviate from its
+prediction.
 
--   If the person gets all items right the MLE is positive infinity
+Simplest model is normally distributed errors
 
--   If the person gets all items wrong the MLE is negative infinity
+$$Y_i \sim N(f(\boldsymbol{X}_i),\sigma_e)$$
 
--   If you have a proper prior, then MAP is shrunk towards prior (population) mean
+This can be rewritten
+$$ Y_i = f(\boldsymbol{X}_i) + \epsilon_i \qquad \epsilon_i \sim N(0,\sigma_e)$$
 
-## Quiz 2
+The difference between the prediction, $f(\boldsymbol{X}_i)$ and $Y_i$ is the residual, $\epsilon_i$.  
 
-Assume we are doing a typical $t$-test using the classical Neyman-Pearson framework, and get the result $t(30)=5.1$
+This is a **linear model**.  The parameters are the coefficients (slopes
+and intercepts) plus the residual standard error.
 
-Which is larger
+### A simple model
 
-A. Pr(difference of means = 0) B. 5% C. A and B are about the same D. Can't tell
+[Line Parameters](LineParameters.Rmd)
 
-## Bayesian versus Classical Hypothesis Testing
+## Estimating parameters
 
--   No real analog of classical hypothesis test
+Given a set of data $\boldsymbol{Y}$ and $\textbf{X}$ 
 
--   Setup two models:
+Prediction error is $Y_i - \tilde{Y_i}$
 
-    -   $M_0$: difference of means is "around zero"
-    -   $M_1$: difference of means is "different from zero"
+Can define a _loss function_, $L(Y,f(\boldsymbol{X}|\boldsymbol{\beta}))$.
 
--   Can then look at Bayes Factor (ratio of likelihoods) and pick one over the other
+Least squares:
 
-## Don Rubin's Bayesian Rationale
+$$L(\boldsymbol{Y},f(\textbf{X},\boldsymbol{\beta})) = 
+\sum_i (Y_i - f(\boldsymbol{X}_i|\boldsymbol{\beta})) ^2 $$
 
--   "I'm a Bayesian because I want my tests and confidence intervals to be well calibrated."
+The values of $\boldsymbol{\beta}$ which minimize the square error,
+are the least square estimate, $\hat{\boldsymbol{\beta}}$.
 
-    -   C.I.s have correct coverage probability.
+In machine learning, this is called _learning_ or _training_.
 
-    -   Tests have right level & power
+## Interpolation versus extrapolation
 
--   Bayesian rule of treating unknown quantities as random variables is easier than propagating standard errors.
+We want the training sample to be representative of the population of
+interest.
 
-## Regression
+Predictions of new values inside the range of the training data are
+_interpolation._
 
--   Consider prediction interval for point from a regression model.
+Predictions outside of the range are _extrapolation_.
 
--   Two sources of error:
+Extrapolation has a big assumption; the data outside the training
+sample will behave like the data inside the sample.
 
-    -   Error estimating parameters
 
-    -   Residual distribution of points around regression line
+## Models as a decription of reality
 
--   In Bayesian calculations parameters are random variables and add to random distribution of points around line
+If we think the variables in $\textbf{X}$ influence $Y$, then the
+prediction should be better by including those variables.
 
-## Missing Data/Multiple Imputations
+Can't prove causality:
+  - Can provide evidence for suspected causes
+  - Can identify candidate causes for later testing
 
--   Data are missing, but we have likelihood which shows relationship between missing data and parameters
+## Box's Maxim
 
--   Can draw a plausible value (imputation) for missing value from that distribution, but that doesn't model our uncertainty about the missing value
+| All models are wrong, but some are useful
+|  -- George Box [@box1976]
 
--   Drawing multiple plausible values (imputations) for missing values from that distribution does model our uncertainty
+Models are an approximation of the truth, they always leave something out.
 
-## Bottom Line
+Often simplified version of the truth allows us to see certain
+relationships more clearly.
 
--   Principled approach to inference: everything is known or a random variable
 
--   Probability as state of knowledge interpretation is more flexible than probability as frequency interpretation
+# Review of EDF 5400
 
+* EDF 5400 Review Quiz on Canvas
 
-* Solving large, complex problems is easier:  if only we can solve the integrals
+## Some Review Tools:
+
+* Normal Distribution
+  - https://pluto.coe.fsu.edu/rdemos/IntroStats/NormalParams.Rmd
+  - https://pluto.coe.fsu.edu/rdemos/IntroStats/NormalCalculator.Rmd
+  - https://pluto.coe.fsu.edu/rdemos/IntroStats/NormalZ-scores.Rmd
+* Histograms and Boxplots
+  - https://pluto.coe.fsu.edu/rdemos/IntroStats/SkewnessPractice.Rmd
+  - https://pluto.coe.fsu.edu/rdemos/IntroStats/SkewnessBoxplot.Rmd
+  - https://pluto.coe.fsu.edu/rdemos/IntroStats/KurtosisPractice.Rmd
+  - https://pluto.coe.fsu.edu/rdemos/IntroStats/KurtosisBoxplots.Rmd  
+* Probability
+  - https://pluto.coe.fsu.edu/rdemos/IntroStats/ConditionalProbability.Rmd
+  - https://pluto.coe.fsu.edu/rdemos/IntroStats/Independence.Rmd
+  - https://pluto.coe.fsu.edu/rdemos/IntroStats/LawOfLargeNumbers.Rmd  
+  - https://pluto.coe.fsu.edu/rdemos/IntroStats/LawOfLargeNumbersAnimated.Rmd
+  - https://pluto.coe.fsu.edu/rdemos/IntroStats/CentralLimitTheorem.Rmd
+* Inference
+  - https://pluto.coe.fsu.edu/rdemos/IntroStats/EffectSize.Rmd
+  - https://pluto.coe.fsu.edu/rdemos/IntroStats/ConfidenceInterval.Rmd
+  - https://pluto.coe.fsu.edu/rdemos/IntroStats/TestCI.Rmd
+  - https://pluto.coe.fsu.edu/rdemos/IntroStats/VaccineCI.Rmd  
