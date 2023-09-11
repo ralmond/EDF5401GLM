@@ -1,0 +1,129 @@
+---
+title: "ACED Simple Regression"
+format: html
+---
+```{r library}
+library(DescTools)
+library(tidyverse)
+```
+
+# ACED Data
+```{r loadACEDnoNA}
+ACEDextract <- read_csv("ACED_extract1.csv",na="-999")
+ACEDextract$Session <- factor(ACEDextract$Session)
+ACEDextract$Cond_code <- factor(ACEDextract$Cond_code)
+ACEDextract$Sequencing <- factor(ACEDextract$Sequencing)
+ACEDextract$Feedback <- factor(ACEDextract$Feedback)
+ACEDextract$Gender <- factor(ACEDextract$Gender)
+ACEDextract$Race <- factor(ACEDextract$Race,1:8)
+ACEDextract$Level_Code <- factor(ACEDextract$Level_Code)
+```
+
+```{r mutate}
+ACEDextract %>%
+  mutate(gain=post_scaled-pre_scaled) ->
+  ACEDextract
+```
+
+## Research Questions
+
+# Making Scatterplots
+
+## Scatterplot
+
+## Adding lines and smooths
+
+## Jittering
+
+## Coloring points
+
+# Fitting a Linear Model
+
+## Formulas
+
+## Other arguments of `lm()`
+
+* `data`
+
+* `subset`
+
+* `weights`
+
+* `na.action`
+
+## components
+
+* `coefficients`
+
+* `residuals`
+
+* `fitted.values`
+
+* `df.residuals`
+
+## Summaries
+
+* `print.lm`
+
+* `summary.lm`
+
+* `anova.lm`
+
+* `plot.lm`
+
+## Extracting bits
+
+* `coef`
+
+* `effects`
+
+* `vcov`
+
+* `nobs`
+
+* `variable.names`
+
+## Extracting bits from the summary
+
+* `summary()$sigma` -- residual sd/standard error of the estimate
+
+* `summary()$df` -- degrees of freedom
+
+* `summary()$fstatistic`
+
+* `summary()$r.squared`, `summary()$adj.r.squared`
+
+## Prediction
+
+* `predict`
+
+* `fitted`
+
+* `residuals`, `rstandard`, `rstudent`
+
+* `simulate`
+
+## Diagnostics
+
+* `dfbeta`, `dfbetas`, `dffits`
+
+* `cooks.distance`
+
+* `influence`
+
+* `hatvalues`
+
+## Model Fit
+
+* `logLik`
+
+* `deviance`
+
+# Tasks
+
+1. Make marginal summaries for the following variables:
+
+Correct,Incorrect,Reamaining,ElapsedTime,pre_scaled,post_scaled,EAP.sgp
+
+2. Same as above, but break down by Level_code
+
