@@ -1,0 +1,5 @@
+jobsat <- haven::read_sav("Homework/jobsat.sav")
+summary(jobsat)
+jobsat$gender <- factor(jobsat$gender,1:2,c("female","male"))
+jobsat$rating <- factor(jobsat$rating,0:1,c("unsatisfactory","satisfactory"))
+readr::write_csv(jobsat,"Homework/jobsat.csv")
