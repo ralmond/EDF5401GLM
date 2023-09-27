@@ -1,0 +1,67 @@
+---
+title:  Case Study 3 -- Regression Diagnostics
+---
+```{r}
+cars.lm <- lm(dist~speed,data=cars)
+cars.sqm <- lm(sqrt(dist)~speed,data=cars)
+cars.llm <- lm(log(dist)~speed,data=cars)
+```
+
+```{r}
+plot(cars.lm)
+```
+```{r}
+plot(cars.sqm)
+```
+
+
+
+## dfbetas
+
+```{r dfbetas}
+lm_PostxEAP <- lm(EAP.sgp~post_scaled,data=ACEDextract,na.action=na.exclude)
+dfb <- dfbeta(lm_PostxEAP)
+dfbs <- dfbetas(lm_PostxEAP)
+data.frame(dfbeta=dfb,dfbeta_scaled=dfbs) ->dfbb
+summary(dfbb)
+dfbb
+```
+
+```{r}
+boxplot(dfb[,"post_scaled"])
+```
+```{r}
+leverage <- cut(dfb[,"post_scaled"],quantile(dfb[,"post_scaled"],probs=c(0,.05,.95,1),na.rm=TRUE))
+summary(leverage)
+ggplot(ACEDextract,aes(y=pre_scaled,x=EAP.sgp,color=leverage)) + scale_color_discrete() + geom_point() + geom_smooth(method="lm") 
+```
+```{r plotLm}
+plot(lm_PostxEAP)
+```
+
+
+# Five Assumptions
+
+## 0.  Representative Sample
+
+### Missing Data
+
+## 1. Independent Observations
+
+### Time Series
+
+### Clusters
+
+## 2. Linear form
+
+### Transformations
+
+## 3. Homoscedasticiy -- Equal variances
+
+### Weighted regression
+
+### Transforming Y
+
+## 4. Normality of Residuals
+
+# Outliers and influential points.

@@ -102,6 +102,34 @@ ggplot(ACEDextract,aes(x=Correct,EAP.sgp,color=Level_Code,
   geom_point()
 ```
 
+# Calclulating a correlation
+
+## Var and Cor
+
+```{r var}
+var(ACEDextract$Correct,ACEDextract$EAP.sgp)
+cor(ACEDextract$Correct,ACEDextract$EAP.sgp)
+select(ACEDextract,starts_with("EAP")) %>% cor()
+```
+
+## Handling missing data
+
+Add `use="complete.obs"` or `use="pairwise.complete.obs"`
+
+```{r varNA}
+var(ACEDextract$Correct,ACEDextract$EAP.sgp,use="complete.obs")
+cor(ACEDextract$Correct,ACEDextract$EAP.sgp,use="complete.obs")
+select(ACEDextract,starts_with("EAP")) %>% cor(use="pairwise.complete.obs")
+```
+
+## Biserial and Polyserial correlations
+
+polychor::polychor
+
+## Kendal's Tau-b
+
+`DescTools::KendalTauB`
+
 # Fitting a Linear Model
 
 The `lm()` function fits a linear model.
@@ -320,10 +348,8 @@ than the `$` operator.)
 Correct,Incorrect,ElapsedTime,pre_scaled,post_scaled,EAP.sgp
 
 ```{r}
-for (var in c("Correct","Incorrect")) {
-  print(var)
-  print(Desc(ACEDextract[[var]]))
-}
+Desc(ACEDextract$Correct)
+
 ```
 
 2.  Same as above, but break down by Level_code

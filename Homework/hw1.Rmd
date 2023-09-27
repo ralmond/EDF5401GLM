@@ -1,8 +1,10 @@
 ---
 title: "EDF 5401 Homework Assignment 1"
+format: pdf
 editor_options: 
   markdown: 
     wrap: 72
+---df
 ---
 
 (total points: 90)
@@ -114,7 +116,7 @@ SPSS, or any other stat package you are familiar with.
     Conduct simple regression that predicts the outcome variable from
     the predictor using this sample of data. Save residuals from the
     model, as well as dfbetas. Then answer the following questions:
-    
+
 ```{r Q6}
 
 ```
@@ -139,60 +141,66 @@ $$
   Y =
 $$
 
-(6.2) (5 pts.) Check "Coefficients" table. What are the values of $b_0$ and $b_1$
-the unstandardized regression equations for this model (two equations: one for
-observed scores and the other for the regression line).
+(6.2) (5 pts.) Check "Coefficients" table. What are the values of $b_0$
+and $b_1$ the unstandardized regression equations for this model (two
+equations: one for observed scores and the other for the regression
+line).
 
 (6.3) (5 pts.) Interpret the value of $b_0$ and $b_1$.
 
-(6.4) (5 pts.) Obtain the value of MSE and SEE. What do these two values tell you? 
-Comparing these two values to the variance and standard deviation of the outcome 
-variable, does the predictor seem to help in predicting the outcome variable?
+(6.4) (5 pts.) Obtain the value of MSE and SEE. What do these two values
+tell you? Comparing these two values to the variance and standard
+deviation of the outcome variable, does the predictor seem to help in
+predicting the outcome variable?
 
-(6.5) (5 pts.) Check residuals and dfbetas, which case(s) seem to be outlier(s)? Support your answer with appropriate indices. Explain in words the meaning of the largest dfbeta value for $b_1$.
+(6.5) (5 pts.) Check residuals and dfbetas, which case(s) seem to be
+outlier(s)? Support your answer with appropriate indices. Explain in
+words the meaning of the largest dfbeta value for $b_1$.
 
-7.  Exclude the outlier(s) you identified in the Question 6.5 and re-run the 
-simple regression. Save residuals and dfbetas from the model, and make a plot
-with standardized residuals vs. predicted $Y$ values. Then answer the following
-questions:
+7.  Exclude the outlier(s) you identified in the Question 6.5 and re-run
+    the simple regression. Save residuals and dfbetas from the model,
+    and make a plot with standardized residuals vs. predicted $Y$
+    values. Then answer the following questions:
 
 ```{r Q7}
 
 ```
 
-(7.1) (5 pts.) What are the value of slope ($b_1$) and its standard error
-($s_{b_1}$)? Use these two values to conduct the test of H0: $\beta_1= 0$
-at $\alpha = .05$. What is your $t$ value? $p$ value? What is your conclusion about
-the effect of the predictor on the outcome variable?
+(7.1) (5 pts.) What are the value of slope ($b_1$) and its standard
+error ($s_{b_1}$)? Use these two values to conduct the test of H0:
+$\beta_1= 0$ at $\alpha = .05$. What is your $t$ value? $p$ value? What
+is your conclusion about the effect of the predictor on the outcome
+variable?
 
-(7.2) (5 pts.) What's the null hypothesis of the $F$ test? Using values from the
-ANOVA table, compute the $F$ value. What is your $p$ value? Suppose $\alpha = .05$,
-what is your statistical conclusion for this hypothesis testing?
+(7.2) (5 pts.) What's the null hypothesis of the $F$ test? Using values
+from the ANOVA table, compute the $F$ value. What is your $p$ value?
+Suppose $\alpha = .05$, what is your statistical conclusion for this
+hypothesis testing?
 
 (7.3) (5 pts.) Square the $t$ value for the slope from Question 7.1, and
-compare it to the $F$ value from Question 7.2. Explain your findings.
-Do the $F%-test and $t$*-test lead to the same statistical conclusion?
+compare it to the $F$ value from Question 7.2. Explain your findings. Do
+the \$F%-test and $t$\*-test lead to the same statistical conclusion?
 
-(7.4) (5 pts.) Compute the 95% confidence interval (C.I.) around the estimated
-slope ($b_1$). What does this interval tell you about the population value of
-slope? What does this interval suggest about the relationship between job
-satisfaction and current salary? Compare this information to that given by the t
-test in Question 7.1, does this C.I. lead to the same statistical conclusion as the
-$t$-test?
+(7.4) (5 pts.) Compute the 95% confidence interval (C.I.) around the
+estimated slope ($b_1$). What does this interval tell you about the
+population value of slope? What does this interval suggest about the
+relationship between job satisfaction and current salary? Compare this
+information to that given by the t test in Question 7.1, does this C.I.
+lead to the same statistical conclusion as the $t$-test?
 
-(7.5) (5 pts.) Describe the relationship between $R^2$ and the quantities
-in the ANOVA table. Interpret the meaning of this value.
+(7.5) (5 pts.) Describe the relationship between $R^2$ and the
+quantities in the ANOVA table. Interpret the meaning of this value.
 
-(7.6) (5 pts.) Do you think this predictor (current salary) is important in
-predicting the outcome variable (job satisfaction)? Why do you think it is
-important (or not important)?
+(7.6) (5 pts.) Do you think this predictor (current salary) is important
+in predicting the outcome variable (job satisfaction)? Why do you think
+it is important (or not important)?
 
 (7.7) (5 pts.) Check the scatterplot between standardized residuals and
 predicted $Y$ values (SPSS default) or the scatterplot between square
 root of the absolute value of the residuals (R default). Does the
-assumption of homogeneity of error variance (homoscedasticity) seem to be met
-for this regression analysis?
+assumption of homogeneity of error variance (homoscedasticity) seem to
+be met for this regression analysis?
 
 (7.8) (5pts.) Does the fitted model excluding the outliers seem to be
-similar to or different from the model based on all 200 cases?
-Comment on any differences you see between these two models.
+similar to or different from the model based on all 200 cases? Comment
+on any differences you see between these two models.
