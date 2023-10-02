@@ -1,0 +1,34 @@
+---
+title: "Midterm Blueprint"
+format: pdf
+---
+
+Given a description of a data collection, and a bunch of R output.
+
+1.  Are there problems with the sample? Non-representative (does it match the target population)? Missing data?
+
+2.  Is the distribution the same for everybody in the group? Are there clusters? Serial (time) dependencies?
+
+3.  What at the distributions of X and Y like? High skeweness? High kurtosis? Outliers?
+
+4.  Is the relationship mostly linear? Will transforming X or Y make it more linear?
+
+5.  Is the variance roughly the same for all values of $\hat Y$? Will transforming $Y$ help?
+
+6.  Are the residuals roughly normal? Are there any outliers? Will transforming $Y$ help?
+
+7.  Are there any differences by subgroup?
+
+8.  Is there enough evidence in the sample to conclude that $X$ and $Y$ are related? How strong is the relationship?
+
+9.  What is the equation of the regression line?
+
+10. Sensitivity to outliers? Leverage points?
+
+11. What can we conclude about the relationship between $X$ and $Y$?
+
+# Part 1
+
+Answer those 8 questions based on the ACED data we have been using for the case study.
+
+# Part 2

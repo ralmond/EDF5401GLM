@@ -354,6 +354,16 @@ Desc(ACEDextract$Correct)
 
 2.  Same as above, but break down by Level_code
 
+```{r}
+ACEDextract %>%
+  select(Correct,post_scaled,Level_Code) %>% 
+  na.omit() %>%
+  group_by(Level_Code) %>%
+  summarize(Correct.mean=mean(Correct),Correct.sd=sd(Correct),
+            Cor.skew=DescTools::Skew(Correct),Cor.kurt=DescTools::Kurt(Correct))
+
+```
+
 3.  Plot `Correct` against `Incorrect`. What is happening here?
 
     ```{r}
@@ -367,3 +377,26 @@ Desc(ACEDextract$Correct)
 6.  Regress `post_scaled` against `EAP.sgp`. Is `EAP.sgp` (the internal
     measure of ability from inside the game) a good predictor of
     `post_scaled` (the external predictor)?
+
+```{r}
+lmPostxEAP <- lm(post_scaled~EAP.sgp,data=ACEDextract,na.action=na.exclude)
+summary(lmPostxEAP)
+```
+
+```{r}
+anova(lmPostxEAP)
+```
+
+## Regression Effect
+
+```{r regEffect}
+ggplot(ACEDextract,aes(x=pre_scaled,y=gain)) + geom_point() + geom_smooth(method="lm")
+```
+
+```{r}
+ggplot(ACEDextract,aes(x=pre_scaled,y=post_scaled)) + geom_point() + geom_smooth(method="lm")
+```
+
+```{r}
+plotly::ggplotly()
+```
