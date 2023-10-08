@@ -171,6 +171,25 @@ Most missing data is because control students did not get internal ACED measure 
 
 Grouped by classrooms.  (Might want to color by class.)
 
+```{r groupingGender}
+ggplot(ACEDextract,aes(x=EAP.sgp,y=post_scaled,color=Gender)) + geom_point()+geom_smooth()
+```
+
+```{r groupingClass}
+ggplot(ACEDextract,aes(x=EAP.sgp,y=post_scaled,color=Session)) + geom_point()
+```
+
+```{r ecologicalCorr}
+class1 <- data.frame(x=rnorm(25,5),y=rnorm(25,5),class="c1")
+class2 <- data.frame(x=rnorm(25,10),y=rnorm(25,10),class="c2")
+bothclasses <- rbind(class1,class2)
+bothclasses$class <- factor(bothclasses$class)
+ggplot(bothclasses, aes(x=x,y=y,color=class)) + geom_point()
+```
+
+
+
+
 2. Is the relationship mostly linear?  Will transforming X or Y make it more linear?
 
 3. Is the variance roughly the same for all values of $\hat Y$?  Will transforming $Y$ help?
@@ -179,4 +198,8 @@ Grouped by classrooms.  (Might want to color by class.)
 
 5. Are there any differences by subgroup?  
 
-In the ACED data set, pay attention to `Level_Code` and `Condition_code`.
+In the ACED data set, pay attention to `Level_Code` and `Cond_code`.
+
+```{r groupingCondition}
+ggplot(ACEDextract,aes(x=EAP.sgp,y=post_scaled,color=Cond_code)) + geom_point()+geom_smooth()
+```

@@ -32,3 +32,5 @@ Given a description of a data collection, and a bunch of R output.
 Answer those 8 questions based on the ACED data we have been using for the case study.
 
 # Part 2
+
+[https://lib.stat.cmu.edu/StatDat/Datafiles/teacherpaydat.html](https://web.archive.org/web/20110104102707/http://lib.stat.cmu.edu/DASL/Datafiles/teacherpaydat.html) (original link has gone, so this sends you to the Internet Wayback Machine.
