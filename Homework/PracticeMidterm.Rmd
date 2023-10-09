@@ -1,7 +1,15 @@
 ---
 title: "Midterm Blueprint"
-format: pdf
+format: docx
 ---
+
+```{r}
+library(tidyverse)
+library(DescTools)
+library(plotly)
+```
+
+## Generic Questions
 
 Given a description of a data collection, and a bunch of R output.
 
@@ -29,8 +37,345 @@ Given a description of a data collection, and a bunch of R output.
 
 # Part 1
 
-Answer those 8 questions based on the ACED data we have been using for the case study.
+Here is the analysis of ACED post_test scores by EAP scores.
+
+## Exploratory Analysis
+
+### Read the data
+
+```{r loadACEDnoNA}
+ACEDextract <- read_csv("../CaseStudies/ACED_extract1.csv",na="-999")
+ACEDextract$Session <- factor(ACEDextract$Session)
+ACEDextract$Cond_code <- factor(ACEDextract$Cond_code)
+ACEDextract$Sequencing <- factor(ACEDextract$Sequencing)
+ACEDextract$Feedback <- factor(ACEDextract$Feedback)
+ACEDextract$Gender <- factor(ACEDextract$Gender)
+ACEDextract$Race <- factor(ACEDextract$Race,1:8)
+ACEDextract$Level_Code <- factor(ACEDextract$Level_Code)
+```
+
+### Marginal Summaries
+
+```{r EAP}
+Desc(ACEDextract$EAP.sgp)
+```
+
+```{r post}
+Desc(ACEDextract$post_scaled)
+```
+```{r outlierEAP}
+select(ACEDextract,all_of(c("SubjID","Cond_code","Level_Code",
+                            "post_scaled","EAP.sgp"))) %>%
+  filter(post_scaled > 82)
+```
+### Scatterplots
+
+```{r scatterplots0}
+#| warning: false
+#| message: false
+ggplot(ACEDextract,aes(x=EAP.sgp,y=post_scaled)) + geom_point() +
+  geom_smooth()
+```
+By study condition
+
+```{r scatterplotsCC}
+#| warning: false
+#| message: false
+ggplot(ACEDextract,aes(x=EAP.sgp,y=post_scaled,color=Cond_code)) + geom_point() +
+  geom_smooth()
+```
+
+By class level
+```{r scatterplotsLC}
+#| warning: false
+#| message: false
+ggplot(ACEDextract,aes(x=EAP.sgp,y=post_scaled,color=Level_Code)) + geom_point() +
+  geom_smooth()
+```
+
+By class
+```{r scatterplotsSession}
+#| warning: false
+#| message: false
+ggplot(ACEDextract,aes(x=EAP.sgp,y=post_scaled,color=Session)) + geom_point() +
+  geom_smooth()
+```
+
+By Gender
+```{r scatterplotsGender}
+#| warning: false
+#| message: false
+ggplot(ACEDextract,aes(x=EAP.sgp,y=post_scaled,color=Gender)) + geom_point() +
+  geom_smooth()
+```
+### First Regression
+```{r ACEDregression}
+aced_lm <- lm(post_scaled ~ EAP.sgp, data=ACEDextract)
+summary(aced_lm)
+```
+
+```{r ACEDdiag}
+oldpar <- par(mfrow=c(2,2))
+plot(aced_lm)
+par(oldpar)
+```
+### ELL Students
+
+The accommodation given to English Language Learner (ELL) students was that their teachers
+could translated any words they were having problems with.  However, the study team
+noted that these translations often became instruction.
+
+Run without ELL students.
+
+```{r ACEDnoELL}
+aced_lm_noell <- lm(post_scaled ~ EAP.sgp, data=ACEDextract,
+                    subset=ACEDextract$Level_Code!="ELL")
+summary(aced_lm_noell)
+```
+```{r ACEDnoELLdiag}
+oldpar <- par(mfrow=c(2,2))
+plot(aced_lm_noell)
+par(oldpar)
+```
+
+## Questions
+
+1. All the data were taken from a single suburban middle school in New Jersey.  Does that present a problem for generalizing to other middle schools?
+
+2. The students were randomly assigned to study conditions, and no Control student has
+an `EAP.sgp` score (as they didn't use ACED).  Does this introduce a bias?
+
+2.  Is the distribution the same for everybody in the group? Are there differences by
+study condition (`Cond_code`)? class level (`Level_Code`)? class (`Session`)?
+
+3.  What at the distributions of $X$ (`EAP.sgp`) and $Y$ (`post_scaled`) like? 
+High skeweness? High kurtosis? Outliers?
+
+4.  Is the relationship mostly linear? Will transforming $X$ or $Y$ make it more linear?
+
+5.  Is the variance roughly the same for all values of $\hat Y$? Will transforming $Y$ help?
+
+6.  Are the residuals roughly normal? Are there any outliers? Will transforming $Y$ help?
+
+7.  Is there enough evidence in the sample to conclude that $X$ and $Y$ are related? How strong is the relationship?
+
+8.  What is the equation of the regression line?
+
+9. The ELL students had slightly different administration conditions.  How sensitive are
+the conclusions to those students?
+
+10. What can we conclude about the relationship between $X$ and $Y$?  In particular, both
+`EAP.sgp` and `post_scaled` are measures of the students ability to solve geometric 
+sequence problems?  Are they measuring something similiar?
 
 # Part 2
 
-[https://lib.stat.cmu.edu/StatDat/Datafiles/teacherpaydat.html](https://web.archive.org/web/20110104102707/http://lib.stat.cmu.edu/DASL/Datafiles/teacherpaydat.html) (original link has gone, so this sends you to the Internet Wayback Machine.
+The data were originally published in the _Albaquerque Tribune_ in 
+1986-11-07.  It consists of data from 1985, from the 50 states plus the 
+District of Columbia[^1].  It consists of the "average" (which average is
+unspecified, presumably the mean) teacher salary, and the per pupil spending
+on education in each space.
+
+[^1]:  Taxation without representation.
+
+The data originally come from 
+[https://lib.stat.cmu.edu/StatDat/Datafiles/teacherpaydat.html](https://web.archive.org/web/20110104102707/http://lib.stat.cmu.edu/DASL/Datafiles/teacherpaydat.html) (original link has gone, so this sends you to the Internet Wayback Machine).  From this site:
+
+
+1. PAY (`Pay`): Average public school teacher annual salary (\$)
+2. SPEND (`Spend`): Spending on public schools per pupil [sic] (\$)
+3. AREA (`Region`): Region 1 Northeast and North Central, 2 South, 3 West 
+
+
+```{r loadTeacherPay}
+teacherPay <- read_delim("TeacherPay.txt",trim_ws = TRUE)
+teacherPay$Region <- factor(teacherPay$Region,1:3,
+                            c("Northeast/North Central","South","West"))
+summary(teacherPay)
+```
+
+## Exploratory Analysis
+
+### Unidimensional
+
+```{r pay}
+Desc(teacherPay$Pay)
+```
+
+```{r spending}
+Desc(teacherPay$Spend)
+```
+```{r outlier}
+filter(teacherPay, Pay > 40000)
+```
+
+### Exploratory By Groups
+
+```{r groups}
+teacherPay %>% group_by(Region) %>%
+  summarise(mPay = round(mean(Pay)), sdPay = round(sd(Pay)), 
+            skPay=round(Skew(Pay),2),
+            mSpend = round(mean(Spend)), sdSpend=round(mean(Spend)),
+            skSpend=round(Skew(Pay),2)) 
+```
+
+```{r histByRegion}
+#| warning: false
+ggplot(teacherPay,aes(x=Pay)) + geom_histogram() +
+  facet_grid(rows=teacherPay$Region)
+```
+```{r histByRegion2}
+ggplot(teacherPay,aes(x=Spend)) + geom_histogram() +
+  facet_grid(rows=teacherPay$Region)
+```
+
+
+### Scatterplots
+
+```{r scatterplots}
+#| warning: false
+ggplot(teacherPay,aes(x=Spend,y=Pay,label=State)) + geom_point() +
+  geom_smooth() + 
+  geom_text(data=teacherPay[teacherPay$Pay>30000,],vjust=-1) +
+  geom_text(data=teacherPay[teacherPay$Pay<20000,],vjust=1)
+```
+```{r scatterplotsC}
+ggplot(teacherPay,aes(x=Spend,y=Pay,label=State,color=Region)) +
+  geom_point() +
+  geom_smooth()
+```
+
+### First Regression
+```{r regression}
+tp_lm <- lm(Pay ~ Spend, data=teacherPay)
+summary(tp_lm)
+```
+
+### Diagnostic Plots
+
+```{r lmPlot}
+par(mfrow=c(2,2))
+plot(tp_lm,labels.id=teacherPay$State)
+par(mfrow=c(1,1))
+```
+
+### Log-log Model
+
+Sometimes money variables are better on the log scale.  Is this the case here?
+
+```{r scatterplot}
+#| warning: false
+ggplot(teacherPay,aes(x=Spend,y=Pay)) + 
+  scale_x_log10() + scale_y_log10() + 
+  geom_point() + geom_smooth()
+```
+
+```{r logloglm}
+tp_lllm <- lm(log(Pay) ~ log(Spend), data=teacherPay)
+summary(tp_lllm)
+```
+
+```{r loglogdiag}
+oldpar <- par(mfrow=c(2,2))
+plot(tp_lllm,labels.id = teacherPay$State)
+par(oldpar)
+```
+
+### Leverage points.
+```{r dfbetas}
+tp_dfb <- dfbetas(tp_lm)
+summary(tp_dfb)
+```
+
+```{r highVals1}
+tp_dfb <- data.frame(dfbetas(tp_lm))
+tp_dfb$State=teacherPay$State
+filter(tp_dfb,abs(Spend)>.3)
+```
+
+Save the row numbers for sensitivity analysis.
+
+```{r highLev}
+highLev <- which(abs(tp_dfb$Spend)>.3)
+highLev
+```
+
+### Sensitivity Analysis 1, no Alaska
+
+```{r lmnoAK}
+tp_lm_noAK <- lm(Pay ~ Spend, data=teacherPay, 
+                 subset=teacherPay$State != "AK")
+summary(tp_lm_noAK)
+```
+
+```{r diagnoAK}
+oldpar <- par(mfrow=c(2,2))
+plot(tp_lm_noAK,labels.id = teacherPay$State)
+par(oldpar)
+```
+### Take out all four high leverage points
+
+R trick:  using a negative index will select everything but selected values.
+
+```{r lmLowLev}
+tp_lm_lowLev <- lm(Pay ~ Spend, data=teacherPay, 
+                   subset = -highLev)
+summary(tp_lm_lowLev)
+```
+
+```{r diaglowlev}
+oldpar <- par(mfrow=c(2,2))
+plot(tp_lm_lowLev,labels.id = teacherPay$State)
+par(oldpar)
+```
+
+### Table of Results
+```{r extractor}
+extractor <- function(lm_mod) {
+   c(coef(lm_mod),df=summary(lm_mod)$df[2], 
+            r.squared=summary(lm_mod)$r.squared,
+            sigma=summary(lm_mod)$sigma)
+}
+stattab <- rbind(
+  All=extractor(tp_lm),
+  noAK=extractor(tp_lm_noAK),
+  lowLev=extractor(tp_lm_lowLev)
+)
+stattab <- data.frame(stattab)
+names(stattab)[1] <- "Intercept"
+stattab$Intercept <- round(stattab$Intercept)
+stattab$Spend <- round(stattab$Spend,2)
+stattab$r.squared <- round(stattab$r.squared,2)
+stattab$sigma <- round(stattab$sigma)
+stattab
+```
+
+## Questions
+
+1. The data are from 1986.  How much will that tell us about 2023?
+
+2.  Are there any clusters in the data with different distributions?
+
+3.  What at the distributions of $X$ (`Spend`) and $Y$ (`Pay`) like? High skeweness? High kurtosis? Outliers?
+
+4.  Is the relationship mostly linear? Frequently with money, log transformations help. Which model is better `Pay ~ Spend` or `log(Pay) ~ log(Spend)`
+
+5.  Is the variance roughly the same for all values of $\hat Y$? Will transforming $Y$ help?
+
+6.  Are the residuals roughly normal? Are there any outliers? Will transforming $Y$ help?
+
+7.  Are there any differences by region?
+
+8.  Is there enough evidence in the sample to conclude that $X$ and $Y$ are related? How strong is the relationship?
+
+9.  What is the equation of the regression line?
+
+10. Which states are outliers in the regression?
+
+11. Which states are high leverage points?
+
+12. What is the sensitivity of the results to the high leverage values?  Is it of concern?
+
+11. What can we conclude about the relationship between $X$ and $Y$?  In particular, does
+increasing spending cause an increase in pay?  Increasing pay cause an increase in 
+spending?  Or is there some common factor.

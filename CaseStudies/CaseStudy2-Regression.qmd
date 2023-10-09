@@ -366,9 +366,9 @@ ACEDextract %>%
 
 3.  Plot `Correct` against `Incorrect`. What is happening here?
 
-    ```{r}
-    ggplot(ACEDextract,aes(x=Correct,y=Incorrect)) +geom_point(position="jitter")
-    ```
+```{r}
+ggplot(ACEDextract,aes(x=Correct,y=Incorrect)) +geom_point(position="jitter")
+```
 
 4.  Plot `EAP.sgp` against `post_scaled`. What is the correlation?
 
