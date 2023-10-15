@@ -1,0 +1,206 @@
+---
+title: "EDF 5401 Midterm, Part 1: Hurricanes."
+date: 2013-10-15
+format: pdf
+---
+
+These data come from the [Data and Story Library](https://dasl.datadescription.com/datafile/hurricanes-2015/?_sf_s=hurricane&_sfm_cases=4+59943)
+
+Most weather models note at relationship between the barimetric pressure and
+the peak wind speeds.  A secondary question is, as the average temperature
+rises, is that relationship changing.
+
+```{r}
+library(tidyverse)
+library(DescTools)
+```
+
+
+# Part 1 Hurricanes
+
+## Exploratory Analysis
+
+### Load the data
+Load the data.  Force category to be an ordered category.
+```{r hload}
+hurric <- read_delim("hurricanes-2015.txt")
+hurric$Category <- ordered(hurric$Category)
+summary(hurric)
+```
+
+### One-dimensional analyses
+
+```{r descPress}
+Desc(hurric$`Central.Pressure(mb)`)
+```
+
+Look at differences in pressure by category.
+
+```{r pressCat}
+ggplot(hurric, aes(x=`Central.Pressure(mb)`,y=Category)) + geom_violin()
+```
+
+```{r descSpeed}
+Desc(hurric$`Max.Wind.Speed(kts)`)
+```
+
+Look at differences in maximum speed by category.  (Note category is largely
+defined by wind speed.)
+
+```{r speedCat}
+ggplot(hurric, aes(x=`Max.Wind.Speed(kts)`,y=Category)) + geom_violin()
+```
+
+### Relationships with time
+
+```{r hurrCor}
+round(cor(hurric[,2:4],use="complete.obs"),3)
+```
+
+```{r speedYear}
+ggplot(hurric,aes(x=Year,y=`Max.Wind.Speed(kts)`)) + 
+  geom_point() + geom_smooth()
+```
+
+Hmm.  Note big gap in data between 1925 and 1975.  Maybe before/after climate
+change?  Note 1950 appears to be a cut point.
+
+```{r recent}
+hurric <- mutate(hurric,recent=Year>1950)
+```
+
+
+```{r pressYear}
+ggplot(hurric,aes(x=Year,y=`Central.Pressure(mb)`)) + 
+  geom_point() + geom_smooth()
+```
+
+## Scatterplots
+
+### XY
+
+```{r hurscat}
+ggplot(hurric,aes(x=`Central.Pressure(mb)`,y=`Max.Wind.Speed(kts)`)) +
+  geom_point() + geom_smooth()
+```
+
+### Jittered
+
+Hmm.  Points lying on top of each other, try some jittering.
+
+```{r hurscat1}
+ggplot(hurric,aes(x=`Central.Pressure(mb)`,y=`Max.Wind.Speed(kts)`)) +
+  geom_point(position="jitter") + geom_smooth()
+```
+### XY by Recent
+
+Color by recent to see if the current and recent groups are similar or not.
+
+```{r hurscat2}
+ggplot(hurric,aes(x=`Central.Pressure(mb)`,y=`Max.Wind.Speed(kts)`,color=recent)) +
+  geom_point(position="jitter") + geom_smooth()
+```
+### Outliers
+
+There seem to be a couple of ouliers.  Lets try to find them.
+
+```{r hurricOut}
+hout <- which(hurric$`Central.Pressure(mb)`<960 & 
+                hurric$`Max.Wind.Speed(kts)` < 75)
+hurric[hout,]
+```
+```{r hurscat2out}
+ggplot(hurric,aes(x=`Central.Pressure(mb)`,y=`Max.Wind.Speed(kts)`,
+                  color=recent)) +
+  geom_point(position="jitter") + geom_smooth() +
+  geom_text(data=hurric[hout,],aes(label=hout))
+```
+
+## Build the Regression Model
+
+```{r hurriclm}
+lm_hurric <- lm(`Max.Wind.Speed(kts)` ~ `Central.Pressure(mb)`, data=hurric)
+summary(lm_hurric)
+```
+
+```{r diagHurric}
+oldpar <- par(mfrow=c(2,2))
+plot(lm_hurric)
+par(oldpar)
+```
+
+### Try some Y transforms
+
+Log
+```{r logHurricScat}
+ggplot(hurric,aes(x=`Central.Pressure(mb)`,y=`Max.Wind.Speed(kts)`,color=recent)) +
+  geom_point(position="jitter") + geom_smooth() + scale_y_log10()
+```
+
+Log model
+```{r loglmHurric}
+llm_hurric <- lm(log(`Max.Wind.Speed(kts)`,10) ~ `Central.Pressure(mb)`, data=hurric)
+summary(llm_hurric)
+```
+Log Diagnostics
+
+```{r diaglogHurric}
+oldpar <- par(mfrow=c(2,2))
+plot(llm_hurric)
+par(oldpar)
+```
+
+Flipping a coin, I'm doing the rest of the analyses on the linear scale.
+
+### Outliers
+
+Calculate dfbetas for identified outliers
+```{r dfbetas}
+dfbetas(lm_hurric)[hout,]
+```
+Run the regression without the outliers.
+```{r lmHurricNO}
+lm_hurric_no <-  lm(`Max.Wind.Speed(kts)` ~ `Central.Pressure(mb)`, 
+                    data=hurric, subset=-hout)
+summary(lm_hurric_no)
+```
+
+## Run separately for old and recent data.
+
+Redo the plot with `method="lm"` to visualize different lines.
+```{r diffPlot}
+ggplot(hurric,aes(x=`Central.Pressure(mb)`,y=`Max.Wind.Speed(kts)`,color=recent)) +
+  geom_point(position="jitter") + geom_smooth(method="lm")
+```
+
+### 19th C, Early 20th
+
+```{r lmEarly}
+lm_hurric_19 <-  lm(`Max.Wind.Speed(kts)` ~ `Central.Pressure(mb)`, 
+                    data=hurric, subset=!recent)
+summary(lm_hurric_19)
+## Save slope and SE for later processing.
+hurric_slope_19 <- summary(lm_hurric_19)$coefficients[2,1:2]
+```
+
+### Late 20th, Early 21st
+```{r lmLate}
+lm_hurric_20 <-  lm(`Max.Wind.Speed(kts)` ~ `Central.Pressure(mb)`, 
+                    data=hurric, subset=recent)
+summary(lm_hurric_20)
+## Save slope and SE for later processing.
+hurric_slope_20 <- summary(lm_hurric_20)$coefficients[2,1:2]
+```
+
+Compare slopes in a table:
+```{r slopetab}
+rbind(early=hurric_slope_19,
+      late=hurric_slope_20)
+```
+Standard error for the difference is $\sqrt{s_1^2 +s_2^2}$
+
+```{r sediff}
+sqrt(hurric_slope_19[2]^2+hurric_slope_20[2]^2)
+```
+
+

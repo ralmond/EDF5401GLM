@@ -20,7 +20,7 @@ s_{\hat{y}_p} = \sqrt{
 {s^2}
 \left [
 {\frac{1}{n}} +
-{\frac{(x_p - \bar{X})^2}{SS_{X}}}
+{\frac{(x_p - \bar{X})^2}{SS_{X}}} +
 {1}
 \right ]
 }

@@ -1,0 +1,260 @@
+---
+title: "EDF 5401 Midterm, Part 2: Depression and the internet"
+date: 2013-10-15
+format: pdf
+---
+
+These data come from the [Data and Story Library](https://dasl.datadescription.com/datafile/depression-and-the-internet/?_sf_s=depression&_sfm_cases=4+59943)
+
+These household were given free internet access in return for agreeing to being 
+tracked.  Several statistics were reported before and after.
+
+Note that in 1998, home internet access was probably dial-up and not the
+cable/DSL speeds of the current internet.
+
+```{r}
+library(tidyverse)
+library(DescTools)
+```
+
+# Part 2: Depression and the Internet
+
+## Analysis
+
+### Load the data
+Load the data.  Force category to be an ordered category.
+```{r dload}
+depress <- read_delim("depression-and-the-internet.txt")
+depress$Gender <- factor(depress$Gender)
+depress$Age <- factor(depress$Age)
+depress$Race <- factor(depress$`Race (white = 1, minority = 0)`,0:1,
+                       c("minority","white"))
+summary(depress)
+```
+
+### One Dimensional Summaries
+
+```{r dInternet}
+Desc(depress$`Internet use (mean hours per week)`)
+```
+
+
+```{r dBefore}
+Desc(depress$DepressionBefore)
+```
+
+Identify outliers
+```{r hbefore}
+hbefore <- which (depress$DepressionBefore > 2)
+hbefore
+```
+
+
+```{r dAfter}
+Desc(depress$DepressionAfter)
+```
+
+Identify outliers
+```{r hafter}
+hafter <- which (depress$DepressionAfter > 1.5)
+hafter
+```
+
+Subtract before from after to get change.
+```{r dChange}
+depress$DepressionChange <- depress$DepressionAfter - depress$DepressionBefore
+Desc(depress$DepressionChange)
+```
+Identify outliers  (There is one point near the lower fence at -1.13, 
+mark anything beyond that as an outlier.)
+```{r hchange}
+hchange <- which (abs(depress$DepressionChange) > 1.25)
+hchange
+```
+
+### Relationships with Age
+
+```{r aInternet}
+ggplot(depress,aes(x=`Internet use (mean hours per week)`,y=Age)) +
+  geom_violin()
+```
+
+```{r alInternet}
+ggplot(depress,aes(x=`Internet use (mean hours per week)`,y=Age)) +
+  geom_violin() + scale_x_log10()
+```
+
+```{r aBefore}
+ggplot(depress,aes(x=DepressionBefore,y=Age)) +
+  geom_violin()
+```
+```{r aAfter}
+ggplot(depress,aes(x=DepressionAfter,y=Age)) +
+  geom_violin()
+```
+
+```{r aChange}
+ggplot(depress,aes(x=DepressionChange,y=Age)) +
+  geom_violin()
+```
+
+## Scatterplots
+
+### X, Y
+
+```{r dxy}
+ggplot(depress,aes(x=`Internet use (mean hours per week)`,
+                   y=DepressionChange)) +
+  geom_point() + geom_smooth()+
+  geom_text(data=depress[hchange,],aes(label=hchange))
+```
+
+
+### log(X), Y
+
+```{r dlogxy}
+ggplot(depress,aes(x=`Internet use (mean hours per week)`,
+                   y=DepressionChange)) +
+  geom_point() + geom_smooth()+ scale_x_log10() +
+  geom_text(data=depress[hchange,],aes(label=hchange))
+```
+
+Hmm.  Note a number of points piled up on the $y$-axis.  The problem is 
+$\log(0) = -\infty$.  The solution is to add a small number before taking the
+logs.  Looks like most values are above .001, so add .0001.
+
+An alternative would be to exclude these people from the model.
+
+```{r dlogx1y}
+ggplot(depress,aes(x=`Internet use (mean hours per week)`+.0001,
+                   y=DepressionChange)) +
+  geom_point() + geom_smooth()+ scale_x_log10() +
+  geom_text(data=depress[hchange,],aes(label=hchange))
+```
+
+### By Age
+
+```{r dxyAge}
+#| layout-ncol: 2
+ggplot(depress,aes(x=`Internet use (mean hours per week)`,
+                   y=DepressionChange, color=Age)) +
+  geom_point() + geom_smooth() +
+  geom_text(data=depress[hchange,],aes(label=hchange))
+ggplot(depress,aes(x=`Internet use (mean hours per week)`+.0001,
+                   y=DepressionChange,color=Age)) +
+  geom_point() + geom_smooth()+ scale_x_log10() +
+  geom_text(data=depress[hchange,],aes(label=hchange))
+```
+
+
+### By Gender
+
+```{r dxyGender}
+#| layout-ncol: 2
+ggplot(depress,aes(x=`Internet use (mean hours per week)`,
+                   y=DepressionChange, color=Gender)) +
+  geom_point() + geom_smooth() +
+  geom_text(data=depress[hchange,],aes(label=hchange))
+ggplot(depress,aes(x=`Internet use (mean hours per week)`+.0001,
+                   y=DepressionChange,color=Gender)) +
+  geom_point() + geom_smooth()+ scale_x_log10() +
+  geom_text(data=depress[hchange,],aes(label=hchange))
+```
+
+### By Race (Whiteness)
+
+Race is coded white/non-white.  So this is essentially looking at the effect of 
+"whiteness" (whatever that is).
+
+```{r dxyRace}
+#| layout-ncol: 2
+ggplot(depress,aes(x=`Internet use (mean hours per week)`,
+                   y=DepressionChange, color=Race)) +
+  geom_point() + geom_smooth() +
+  geom_text(data=depress[hchange,],aes(label=hchange))
+ggplot(depress,aes(x=`Internet use (mean hours per week)`+.0001,
+                   y=DepressionChange,color=Race)) +
+  geom_point() + geom_smooth()+ scale_x_log10() +
+  geom_text(data=depress[hchange,],aes(label=hchange))
+```
+## Regression Model
+
+```{r dlm}
+dlm <- lm(DepressionChange ~ `Internet use (mean hours per week)`,
+          data=depress)
+summary(dlm)
+```
+
+```{r dlmplots}
+#| layout-nrow: 2
+#| layout-ncol: 2
+plot(dlm)
+```
+
+
+### Log X
+
+```{r dllm}
+dllm <- lm(DepressionChange ~ log(`Internet use (mean hours per week)`+.0001),
+          data=depress)
+summary(dllm)
+```
+
+
+```{r dllmplots}
+#| layout-nrow: 2
+#| layout-ncol: 2
+plot(dllm)
+```
+### Leverage Points
+
+Linear scale
+
+```{r dfblm}
+dfblm <- dfbetas(dlm)
+hlev <- which(abs(dfblm[,2])>2/sqrt(nrow(dfblm)))
+dfblm[hlev,]
+```
+Rerun without leverage points.
+
+Linear model.
+```{r dlmnl}
+summary(lm(DepressionChange ~ `Internet use (mean hours per week)`,
+          data=depress,subset=-hlev))
+```
+
+```{r dllmnl}
+summary(lm(DepressionChange ~ log(`Internet use (mean hours per week)`+.0001),
+          data=depress,subset=-hlev))
+```
+
+## Sensitivity Analyses
+
+### Outliers
+
+Look at sensitivity to the outliers identified above.
+
+```{r dlmno}
+summary(lm(DepressionChange ~ `Internet use (mean hours per week)`,
+          data=depress,subset=-hchange))
+```
+
+
+```{r dllmno}
+summary(lm(DepressionChange ~ log(`Internet use (mean hours per week)`+.0001),
+          data=depress,subset=-hchange))
+```
+### Internet Vegans
+
+Take a closer look at the people who spend 0 hours per week on the internet.
+Call them _Internet Vegans_.  Look at the sensitivity to them.
+
+```{r dlmnv}
+vegans <- which(depress$`Internet use (mean hours per week)`<.0005)
+summary(lm(DepressionChange ~ `Internet use (mean hours per week)`,
+          data=depress,subset=-vegans))
+```
+```{r dllmnv}
+summary(lm(DepressionChange ~ log(`Internet use (mean hours per week)`+.0001),
+          data=depress,subset=-vegans))
+```
