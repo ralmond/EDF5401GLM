@@ -1,0 +1,48 @@
+---
+title: "Case Study 4 in 3d"
+format: html
+---
+
+```{r}
+library(tidyverse)
+library(DescTools)
+library(GGally)
+library(plotly)
+```
+# ACED Data
+
+```{r loadACEDnoNA}
+ACEDextract <- read_csv("ACED_extract1.csv",na="-999")
+ACEDextract$Session <- factor(ACEDextract$Session)
+ACEDextract$Cond_code <- factor(ACEDextract$Cond_code)
+ACEDextract$Sequencing <- factor(ACEDextract$Sequencing)
+ACEDextract$Feedback <- factor(ACEDextract$Feedback)
+ACEDextract$Gender <- factor(ACEDextract$Gender)
+ACEDextract$Race <- factor(ACEDextract$Race,1:8)
+ACEDextract$Level_Code <- factor(ACEDextract$Level_Code)
+```
+
+```{r mutate}
+ACEDextract %>%
+  mutate(gain=post_scaled-pre_scaled) ->
+  ACEDextract
+```
+
+
+```{r}
+mathmarks <- read.csv("mathmarks.csv")
+summary(mathmarks)
+```
+
+## Scatterplot matrix
+
+```{r scatmat}
+highlight_key(mathmarks) %>%
+  GGally::ggpairs(columns=1:5) %>%
+  ggplotly() %>%
+  highlight("plotly_selected")
+```
+
+```{r 3d}
+plot_ly(mathmarks, x=~ALG, y=~ANL, z=~STAT)
+```
