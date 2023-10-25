@@ -155,20 +155,25 @@ Three stage -- Split training data into training and test groups.
 
 ## Deviance
 
-Deviance is $-2 \log \\ \text{likelihood}=D$
+Deviance is $-2 \log \ \text{likelihood}=D$
+
+Want to pick model with smallest deviance.
 
 ## AIC
 
 $$AIC=2p + D$$
 
-Related to LOO
-Also called Mallow's $C_p$. 
+$p$ is number of parameters (predictors).
+
+Related to LOO Also called Mallow's $C_p$.
 
 ## BIC
 
 $$BIC=p \ln(N) + D$$
 
 Related to minimum description length.
+
+Also, DIC, WAIC, ...
 
 ## Box's Maxim
 
@@ -186,8 +191,7 @@ Search for the best model, but keep the $k$ best models.
 
 In Bayesian framework, can create a posterior distribution over models.
 
-(Weighted) Average of predictions is better than 
-prediction from any single model.
+(Weighted) Average of predictions is better than prediction from any single model.
 
 # ACED model for non-control students
 
@@ -235,4 +239,83 @@ ACEDexp <- mutate(ACEDexp,
                                          2~"Focal3",
                                          c(1,4,5,8)~"Other")))
 summary(ACEDexp$Race)
+```
+
+## Minimum and Maximum Models
+
+```{r}
+minMod <- post_scaled ~ pre_scaled + Sequencing + Feedback
+names(ACEDexp)
+```
+
+```{r}
+maxmodel <- post_scaled ~ pre_scaled + Sequencing + Feedback + Gender + 
+  Race + Level_Code + EAP.sgp + EAP.cr + EAP.dt + EAP.eg + EAP.ext
+```
+
+## Method 1 -- add
+
+```{r}
+ACED1 <- lm(minMod,data=ACEDexp)
+summary(ACED1)
+AIC(ACED1)
+BIC(ACED1)
+cor(residuals(ACED1),as.matrix(select(ACEDexp,where(is.numeric))))
+```
+
+EAP.ext (extend sequence) has the highest correlation, so try adding this one next.
+
+```{r}
+ACED2 <- update(ACED1,.~.+EAP.ext)
+summary(ACED2)
+AIC(ACED2)
+BIC(ACED2)
+anova(ACED1,ACED2)
+```
+
+$$
+SS_{all} = SS_{mod1} + SS_{mod2-mod1} + SS_e
+$$
+
+Use `C(var,base=n)` to set group `n` as reference.
+
+```{r}
+ACED3 <- update(ACED2, .~.+C(Race,base=5))
+summary(ACED3)
+```
+
+```{r}
+cat("AIC mod2=",AIC(ACED2),"mod3=",AIC(ACED3),"\n")
+cat("BIC mod2=",BIC(ACED2),"mod3=",BIC(ACED3),"\n")
+anova(ACED1,ACED2,ACED3)
+```
+
+## Start with saturated model and remove
+
+```{r}
+ACEDm1 <- lm(maxmodel,ACEDexp)
+summary(ACEDm1)
+```
+
+```{r}
+ACEDm2 <- update(ACEDm1,.~.-EAP.dt)
+summary(ACEDm2)
+```
+
+## Stepwise Regression
+
+possible to do both forwards and backwards
+
+```{r}
+ACEDstep <- step(ACED2,list(lower=minMod,upper=maxmodel),
+                 trace=3)
+ACEDstep
+summary(ACEDstep)
+```
+
+# Earnings Data
+
+```{r}
+earnings <- read_csv("https://raw.githubusercontent.com/avehtari/ROS-Examples/master/Earnings/data/earnings.csv")
+summary(earnings)
 ```
