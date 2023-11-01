@@ -3,6 +3,13 @@ title: "Case Study 5"
 format: html
 ---
 
+```{r}
+library(tidyverse)
+library(GGally)
+library(plotly)
+library(DiagrammeR)
+```
+
 # Goal
 
 What is the effect of the study conditions on the relationship between the pre-test and posttest?
@@ -318,4 +325,157 @@ summary(ACEDstep)
 ```{r}
 earnings <- read_csv("https://raw.githubusercontent.com/avehtari/ROS-Examples/master/Earnings/data/earnings.csv")
 summary(earnings)
+```
+
+```{r}
+earnings$male <- factor(earnings$male,labels=c("female","male"))
+earnings$ethnicity <- factor(earnings$ethnicity)
+earnings$smokenow <- factor(earnings$smokenow)
+summary(earnings)
+  
+```
+
+```{r}
+highlight_key(earnings) %>%
+  GGally::ggpairs(columns=1:5) %>%
+  ggplotly() %>%
+  highlight("plotly_selected")
+```
+
+```{r}
+ggplot(earnings,aes(y=earn,x=height)) + geom_point(position="jitter") + geom_smooth()
+```
+
+```{r}
+ggplot(earnings,aes(y=earn,x=height)) + scale_x_log10() + geom_point(position="jitter") + geom_smooth()
+```
+
+```{r}
+learn <- lm(log(earn+1) ~ height, data=earnings, na.action=na.omit)
+summary(learn)
+```
+
+```{r}
+lny = -4 + .19*c(66,67)
+exp(lny)
+```
+
+## Male--Female Interaction
+
+```{r}
+ggplot(earnings[earnings$earnk<350,],aes(y=earn,x=height,color=male)) + scale_x_log10() + geom_point(position="jitter") + geom_smooth()
+```
+
+```{r}
+learng <- lm(log(earn+1) ~ height + male, data=earnings, na.action=na.omit)
+summary(learng)
+```
+
+```{r}
+learngi <- lm(log(earn+1) ~ height * male, data=earnings, na.action=na.omit)
+summary(learngi)
+```
+
+```{r}
+oldpar <- par(mar=c(3,3,2,1), mgp=c(1.7,.5,0), tck=-.01)
+plot(c(55,80),c(0,log(200000)), type="n", xaxs="i", yaxs="i",
+  xlab="Height", ylab="log(earnings)", bty="l", main="Example of no interaction") 
+lines(c(55,80),coef(learng)['(Intercept)']+coef(learng)["malemale"] +
+        c(55,80)*coef(learng)["height"])
+lines(c(55,80),coef(learng)['(Intercept)']+
+        c(55,80)*coef(learng)["height"])
+text(62.5, coef(learng)['(Intercept)']+coef(learng)["malemale"] +
+        62.5*coef(learng)["height"], "Male")
+text(62.5, coef(learng)['(Intercept)']+
+        62.5*coef(learng)["height"], "Female")
+par(oldpar)
+```
+
+```{r}
+oldpar <- par(mar=c(3,3,2,1), mgp=c(1.7,.5,0), tck=-.01)
+plot(c(55,80),c(0,log(200000)), type="n", xaxs="i", yaxs="i",
+  xlab="Height", ylab="log(earnings)", bty="l", main="Example of no interaction") 
+lines(c(55,80),coef(learngi)['(Intercept)']+coef(learngi)["malemale"] +
+        c(55,80)*(coef(learngi)["height"]+coef(learngi)["height:malemale"]))
+lines(c(55,80),coef(learngi)['(Intercept)']+
+        c(55,80)*coef(learngi)["height"])
+text(62.5, coef(learngi)['(Intercept)']+coef(learngi)["malemale"] +
+        62.5*(coef(learngi)["height"]+coef(learngi)["height:malemale"]), "Male")
+text(62.5, coef(learngi)['(Intercept)']+
+        62.5*coef(learngi)["height"], "Female")
+par(oldpar)
+```
+
+## Asbestos and cancer Example
+
+Example from Gelman, Hill & Vehtari, Chapter 1.
+
+```{r }
+oldpar <- par(mar=c(3,3,2,1), mgp=c(1.7,.5,0), tck=-.01)
+plot(c(0,12.5),c(0,.25), type="n", xaxs="i", yaxs="i",
+  xlab="Home radon exposure (pCi/L)", ylab="Probability of lung cancer", bty="l", main="Example of an interaction") 
+lines(c(0,20),.07409+c(0,20)*.0134)
+lines(c(0,20),.00579+c(0,20)*.0026)
+text(10, .07409+10*.0134 - .02, "Smokers")
+text(10, .00579+10*.0026 + .01, "Nonsmokers")
+par(oldpar)
+```
+
+```{r}
+DiagrammeR::grViz('
+digraph rs {
+  i [label="" shape="point"] 
+  radon -> i [arrowhead="none"]
+  i -> cancer
+  smoking -> i
+}
+')
+```
+
+```{r}
+DiagrammeR::grViz('
+digraph rs {
+  
+  radon -> cancer
+  smoking -> cancer
+}
+')
+```
+
+This is a *moderator*
+
+## Model Search
+
+```{r}
+names(earnings)
+```
+
+```{r}
+minMod <- log(earn+1) ~ male*education
+maxMod <- log(earn+1) ~ male*education + male*age + height + ethnicity + exercise + smokenow
+```
+
+Fit Baseline model
+
+```{r}
+earn1 <- na.omit(earnings)
+bearn <- lm(minMod,earn1,earn1$earnk<350,na.action=na.omit)
+summary(bearn)
+```
+
+```{r}
+bearnf <- step(bearn,list(lower=minMod,upper=maxMod),trace=2)
+```
+
+# Job Satisfaction Data
+
+This is the data set used for the first and second homework assignments. This shows how to read it into R.
+
+```{r}
+library(haven)
+```
+
+```{r}
+jobsat <- read_spss("../Homework/jobsat.sav")
+summary(jobsat)
 ```

@@ -657,7 +657,7 @@ the mean by the standard deviation.
 ## Quick interpretation table
 
 | Test Statistic | Effect Size | Interpretation                                                                 |
-|-------------|-------------|----------------------------------------------|
+|----------------|-------------|--------------------------------------------------------------------------------|
 | Big            | Big         | Effect is likely big and important                                             |
 | Big            | Small       | Sample size is big enough to detect difference but it is small and unimportant |
 | Small          | Small       | Effect is small and unimportant                                                |
