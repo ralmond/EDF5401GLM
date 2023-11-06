@@ -405,6 +405,7 @@ The function `DescTools::Desc` gives a bunch of summaries.
 
 ```{r desc}
 Desc(ACEDextract$Correct)
+Skew(ACEDextract$Correct,na.rm=TRUE,ci.type="classic",conf.level=.95)
  
 ```
 
@@ -482,8 +483,8 @@ Add a normal curve:
 
 ```{r normCurve}
 ggplot(ACEDextract,aes(x=Correct)) + geom_histogram(aes(y=..density..)) +
-  stat_function(fun=dnorm,args=list(mean=mean(ACEDextract$Correct),
-                                    sd=sd(ACEDextract$Correct)))
+  stat_function(fun=dnorm,args=list(mean=mean(ACEDextract$Correct,na.rm=TRUE),
+                                    sd=sd(ACEDextract$Correct,na.rm=TRUE)))
 ```
 
 ### Using Facets to break down by group.

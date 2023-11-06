@@ -60,14 +60,20 @@ ACEDextract$Level_Code <- factor(ACEDextract$Level_Code)
 Desc(ACEDextract$EAP.sgp)
 ```
 
+```{r EAPnoOut}
+Desc(ACEDextract$EAP.sgp[ACED_extract1$EAP.sgp<.33])
+```
+
 ```{r post}
 Desc(ACEDextract$post_scaled)
 ```
+
 ```{r outlierEAP}
 select(ACEDextract,all_of(c("SubjID","Cond_code","Level_Code",
                             "post_scaled","EAP.sgp"))) %>%
   filter(post_scaled > 82)
 ```
+
 ### Scatterplots
 
 ```{r scatterplots0}
@@ -76,6 +82,7 @@ select(ACEDextract,all_of(c("SubjID","Cond_code","Level_Code",
 ggplot(ACEDextract,aes(x=EAP.sgp,y=post_scaled)) + geom_point() +
   geom_smooth()
 ```
+
 By study condition
 
 ```{r scatterplotsCC}
@@ -86,32 +93,42 @@ ggplot(ACEDextract,aes(x=EAP.sgp,y=post_scaled,color=Cond_code)) + geom_point() 
 ```
 
 By class level
+
 ```{r scatterplotsLC}
 #| warning: false
 #| message: false
 ggplot(ACEDextract,aes(x=EAP.sgp,y=post_scaled,color=Level_Code)) + geom_point() +
-  geom_smooth()
+  geom_smooth(method="lm")
 ```
 
 By class
+
 ```{r scatterplotsSession}
 #| warning: false
 #| message: false
 ggplot(ACEDextract,aes(x=EAP.sgp,y=post_scaled,color=Session)) + geom_point() +
-  geom_smooth()
+  geom_smooth(method="lm")
 ```
 
 By Gender
+
 ```{r scatterplotsGender}
 #| warning: false
 #| message: false
 ggplot(ACEDextract,aes(x=EAP.sgp,y=post_scaled,color=Gender)) + geom_point() +
   geom_smooth()
 ```
+
 ### First Regression
+
 ```{r ACEDregression}
-aced_lm <- lm(post_scaled ~ EAP.sgp, data=ACEDextract)
+aced_lm <- lm(post_scaled ~ EAP.sgp, data=ACEDextract,na.action=na.exclude)
 summary(aced_lm)
+```
+
+```{r ACEDregression1}
+aced_lm1 <- lm(post_scaled ~ EAP.sgp+pre_scaled, data=ACEDextract,na.action=na.exclude)
+summary(aced_lm1)
 ```
 
 ```{r ACEDdiag}
@@ -119,11 +136,10 @@ oldpar <- par(mfrow=c(2,2))
 plot(aced_lm)
 par(oldpar)
 ```
+
 ### ELL Students
 
-The accommodation given to English Language Learner (ELL) students was that their teachers
-could translated any words they were having problems with.  However, the study team
-noted that these translations often became instruction.
+The accommodation given to English Language Learner (ELL) students was that their teachers could translated any words they were having problems with. However, the study team noted that these translations often became instruction.
 
 Run without ELL students.
 
@@ -132,6 +148,7 @@ aced_lm_noell <- lm(post_scaled ~ EAP.sgp, data=ACEDextract,
                     subset=ACEDextract$Level_Code!="ELL")
 summary(aced_lm_noell)
 ```
+
 ```{r ACEDnoELLdiag}
 oldpar <- par(mfrow=c(2,2))
 plot(aced_lm_noell)
@@ -140,52 +157,39 @@ par(oldpar)
 
 ## Questions
 
-1. All the data were taken from a single suburban middle school in New Jersey.  Does that present a problem for generalizing to other middle schools?
+1.  All the data were taken from a single suburban middle school in New Jersey. Does that present a problem for generalizing to other middle schools?
 
-2. The students were randomly assigned to study conditions, and no Control student has
-an `EAP.sgp` score (as they didn't use ACED).  Does this introduce a bias?
+2.  The students were randomly assigned to study conditions, and no Control student has an `EAP.sgp` score (as they didn't use ACED). Does this introduce a bias?
 
-2.  Is the distribution the same for everybody in the group? Are there differences by
-study condition (`Cond_code`)? class level (`Level_Code`)? class (`Session`)?
+3.  Is the distribution the same for everybody in the group? Are there differences by study condition (`Cond_code`)? class level (`Level_Code`)? class (`Session`)?
 
-3.  What at the distributions of $X$ (`EAP.sgp`) and $Y$ (`post_scaled`) like? 
-High skeweness? High kurtosis? Outliers?
+4.  What at the distributions of $X$ (`EAP.sgp`) and $Y$ (`post_scaled`) like? High skeweness? High kurtosis? Outliers?
 
-4.  Is the relationship mostly linear? Will transforming $X$ or $Y$ make it more linear?
+5.  Is the relationship mostly linear? Will transforming $X$ or $Y$ make it more linear?
 
-5.  Is the variance roughly the same for all values of $\hat Y$? Will transforming $Y$ help?
+6.  Is the variance roughly the same for all values of $\hat Y$? Will transforming $Y$ help?
 
-6.  Are the residuals roughly normal? Are there any outliers? Will transforming $Y$ help?
+7.  Are the residuals roughly normal? Are there any outliers? Will transforming $Y$ help?
 
-7.  Is there enough evidence in the sample to conclude that $X$ and $Y$ are related? How strong is the relationship?
+8.  Is there enough evidence in the sample to conclude that $X$ and $Y$ are related? How strong is the relationship?
 
-8.  What is the equation of the regression line?
+9.  What is the equation of the regression line?
 
-9. The ELL students had slightly different administration conditions.  How sensitive are
-the conclusions to those students?
+10. The ELL students had slightly different administration conditions. How sensitive are the conclusions to those students?
 
-10. What can we conclude about the relationship between $X$ and $Y$?  In particular, both
-`EAP.sgp` and `post_scaled` are measures of the students ability to solve geometric 
-sequence problems?  Are they measuring something similiar?
+11. What can we conclude about the relationship between $X$ and $Y$? In particular, both `EAP.sgp` and `post_scaled` are measures of the students ability to solve geometric sequence problems? Are they measuring something similiar?
 
 # Part 2
 
-The data were originally published in the _Albaquerque Tribune_ in 
-1986-11-07.  It consists of data from 1985, from the 50 states plus the 
-District of Columbia[^1].  It consists of the "average" (which average is
-unspecified, presumably the mean) teacher salary, and the per pupil spending
-on education in each space.
+The data were originally published in the *Albaquerque Tribune* in 1986-11-07. It consists of data from 1985, from the 50 states plus the District of Columbia[^1]. It consists of the "average" (which average is unspecified, presumably the mean) teacher salary, and the per pupil spending on education in each space.
 
-[^1]:  Taxation without representation.
+[^1]: Taxation without representation.
 
-The data originally come from 
-[https://lib.stat.cmu.edu/StatDat/Datafiles/teacherpaydat.html](https://web.archive.org/web/20110104102707/http://lib.stat.cmu.edu/DASL/Datafiles/teacherpaydat.html) (original link has gone, so this sends you to the Internet Wayback Machine).  From this site:
+The data originally come from [https://lib.stat.cmu.edu/StatDat/Datafiles/teacherpaydat.html](https://web.archive.org/web/20110104102707/http://lib.stat.cmu.edu/DASL/Datafiles/teacherpaydat.html) (original link has gone, so this sends you to the Internet Wayback Machine). From this site:
 
-
-1. PAY (`Pay`): Average public school teacher annual salary (\$)
-2. SPEND (`Spend`): Spending on public schools per pupil [sic] (\$)
-3. AREA (`Region`): Region 1 Northeast and North Central, 2 South, 3 West 
-
+1.  PAY (`Pay`): Average public school teacher annual salary (\$)
+2.  SPEND (`Spend`): Spending on public schools per pupil \[sic\] (\$)
+3.  AREA (`Region`): Region 1 Northeast and North Central, 2 South, 3 West
 
 ```{r loadTeacherPay}
 teacherPay <- read_delim("TeacherPay.txt",trim_ws = TRUE)
@@ -205,6 +209,7 @@ Desc(teacherPay$Pay)
 ```{r spending}
 Desc(teacherPay$Spend)
 ```
+
 ```{r outlier}
 filter(teacherPay, Pay > 40000)
 ```
@@ -224,11 +229,11 @@ teacherPay %>% group_by(Region) %>%
 ggplot(teacherPay,aes(x=Pay)) + geom_histogram() +
   facet_grid(rows=teacherPay$Region)
 ```
+
 ```{r histByRegion2}
 ggplot(teacherPay,aes(x=Spend)) + geom_histogram() +
   facet_grid(rows=teacherPay$Region)
 ```
-
 
 ### Scatterplots
 
@@ -239,6 +244,7 @@ ggplot(teacherPay,aes(x=Spend,y=Pay,label=State)) + geom_point() +
   geom_text(data=teacherPay[teacherPay$Pay>30000,],vjust=-1) +
   geom_text(data=teacherPay[teacherPay$Pay<20000,],vjust=1)
 ```
+
 ```{r scatterplotsC}
 ggplot(teacherPay,aes(x=Spend,y=Pay,label=State,color=Region)) +
   geom_point() +
@@ -246,6 +252,7 @@ ggplot(teacherPay,aes(x=Spend,y=Pay,label=State,color=Region)) +
 ```
 
 ### First Regression
+
 ```{r regression}
 tp_lm <- lm(Pay ~ Spend, data=teacherPay)
 summary(tp_lm)
@@ -261,7 +268,7 @@ par(mfrow=c(1,1))
 
 ### Log-log Model
 
-Sometimes money variables are better on the log scale.  Is this the case here?
+Sometimes money variables are better on the log scale. Is this the case here?
 
 ```{r scatterplot}
 #| warning: false
@@ -282,6 +289,7 @@ par(oldpar)
 ```
 
 ### Leverage points.
+
 ```{r dfbetas}
 tp_dfb <- dfbetas(tp_lm)
 summary(tp_dfb)
@@ -290,7 +298,7 @@ summary(tp_dfb)
 ```{r highVals1}
 tp_dfb <- data.frame(dfbetas(tp_lm))
 tp_dfb$State=teacherPay$State
-filter(tp_dfb,abs(Spend)>.3)
+filter(tp_dfb,abs(Spend)>2/sqrt(nrow(tp_dfb)))
 ```
 
 Save the row numbers for sensitivity analysis.
@@ -313,9 +321,10 @@ oldpar <- par(mfrow=c(2,2))
 plot(tp_lm_noAK,labels.id = teacherPay$State)
 par(oldpar)
 ```
+
 ### Take out all four high leverage points
 
-R trick:  using a negative index will select everything but selected values.
+R trick: using a negative index will select everything but selected values.
 
 ```{r lmLowLev}
 tp_lm_lowLev <- lm(Pay ~ Spend, data=teacherPay, 
@@ -330,6 +339,7 @@ par(oldpar)
 ```
 
 ### Table of Results
+
 ```{r extractor}
 extractor <- function(lm_mod) {
    c(coef(lm_mod),df=summary(lm_mod)$df[2], 
@@ -352,7 +362,7 @@ stattab
 
 ## Questions
 
-1. The data are from 1986.  How much will that tell us about 2023?
+1.  The data are from 1986. How much will that tell us about 2023?
 
 2.  Are there any clusters in the data with different distributions?
 
@@ -374,8 +384,6 @@ stattab
 
 11. Which states are high leverage points?
 
-12. What is the sensitivity of the results to the high leverage values?  Is it of concern?
+12. What is the sensitivity of the results to the high leverage values? Is it of concern?
 
-11. What can we conclude about the relationship between $X$ and $Y$?  In particular, does
-increasing spending cause an increase in pay?  Increasing pay cause an increase in 
-spending?  Or is there some common factor.
+13. What can we conclude about the relationship between $X$ and $Y$? In particular, does increasing spending cause an increase in pay? Increasing pay cause an increase in spending? Or is there some common factor.

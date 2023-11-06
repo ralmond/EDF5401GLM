@@ -1,0 +1,102 @@
+---
+title: "Midterm Notes"
+format: html
+---
+
+## Digits
+
+Statistics shouldn't have a lot more significant digits than the the raw data.
+
+Means (medians, slopes & intercept)
+
+:   One more digit than the raw data
+
+Standard Deviations (standard errors)
+
+:   Two more digits
+
+```{r}
+summary(state.x77)
+```
+
+```{r}
+mean(state.x77[-2,"Income"])
+round(mean(state.x77[-2,"Income"]),1)
+```
+
+```{r}
+sd(state.x77[-2,"Income"])
+round(sd(state.x77[-2,"Income"]),2)
+```
+
+### Scientific notation
+
+```{r}
+cat("p=",sqrt(.Machine$double.eps),"\n")
+```
+
+If the p-value goes into scientific notation, write $p < .001$
+
+## APA Style
+
+Expressions in \[math\] italics.
+
+```{r}
+summary(lm(Income~Frost,data=as.data.frame(state.x77)))
+```
+
+### Effect sizes
+
+For regression, the effect sizes are $r$ or $R^2$ (or partial $r$).
+
+### t-test
+
+Template: ($t(\text{df})=\text{t}, p=\text{p}$) or $p<.001$
+
+df is (residual) degrees of freedom
+
+p is p-value.
+
+$$
+t(48) = 1.609, p=0.114
+$$
+
+### F-test
+
+Template: ($F(\text{dfn},\text{dfd})=\text{F}, p=\text{p}$)
+
+dfn is degrees of freedom in numerator (usually number of predictors).
+
+dfd is the residual degrees of freedom
+
+Multiple R-squared: 0.0512, Adjusted R-squared: 0.03144 F-statistic: 2.59 on 1 and 48 DF, p-value: 0.1141
+
+$$ F(1,48) = 2.59, R^2=0.051, p=.114 $$
+
+### Correlation
+
+## Logs
+
+### Log in the equation
+
+$$ \hat Y = b_0 + b_1\log(X)$$
+
+$$ \widehat{\log(Y)} = b_0 + b_1 X $$
+
+### Log10 vs natural log
+
+In R, `log()` natural log, `log10()` is common log.
+
+In SPSS, `log` is common log (I think), and `ln` is natural log.
+
+Difference is a constant (`log(10)` = `{r} log(10)`)
+
+Common logs are generally easier to interpret: change of $1$ on common log scale is a factor of 10.
+
+In the context of linear regression in the social sciences, Gelman and Hill write\[1\]:
+
+> We prefer natural logs (that is, logarithms base 𝑒) \[for $\log(Y)$\] because, as described above, coefficients on the natural-log scale are directly interpretable as approximate proportional differences: with a coefficient of 0.06, a difference of 1 in 𝑥 corresponds to an approximate 6% difference in 𝑦, and so forth.
+
+\[1\] Andrew Gelman and Jennifer Hill (2007). Data Analysis using Regression and Multilevel/Hierarchical Models. Cambridge University Press: Cambridge; New York, pp. 60-61. \[hat tip `fmark@StackExchange`\]
+
+When in doubt, plug some numbers into the regression equation.
