@@ -220,6 +220,11 @@ ACEDextract$Feedback <- factor(ACEDextract$Feedback)
 ACEDextract$Gender <- factor(ACEDextract$Gender)
 ACEDextract$Race <- factor(ACEDextract$Race,1:8)
 ACEDextract$Level_Code <- factor(ACEDextract$Level_Code)
+
+```
+
+```{r}
+summary(ACEDextract)
 ```
 
 Grab the non-control students
@@ -245,7 +250,15 @@ ACEDexp <- mutate(ACEDexp,
                                          3~"Focal2",
                                          2~"Focal3",
                                          c(1,4,5,8)~"Other")))
-summary(ACEDexp$Race)
+ACEDextract <- mutate(ACEDextract,
+                  Race=factor(case_match(as.numeric(Race),
+                                         7~"Reference",
+                                         6~"Focal1",
+                                         3~"Focal2",
+                                         2~"Focal3",
+                                         c(1,4,5,8)~"Other")))
+
+summary(ACEDextract$Race)
 ```
 
 ## Minimum and Maximum Models
@@ -394,7 +407,7 @@ par(oldpar)
 ```{r}
 oldpar <- par(mar=c(3,3,2,1), mgp=c(1.7,.5,0), tck=-.01)
 plot(c(55,80),c(0,log(200000)), type="n", xaxs="i", yaxs="i",
-  xlab="Height", ylab="log(earnings)", bty="l", main="Example of no interaction") 
+  xlab="Height", ylab="log(earnings)", bty="l", main="Example of interaction") 
 lines(c(55,80),coef(learngi)['(Intercept)']+coef(learngi)["malemale"] +
         c(55,80)*(coef(learngi)["height"]+coef(learngi)["height:malemale"]))
 lines(c(55,80),coef(learngi)['(Intercept)']+
@@ -442,9 +455,111 @@ digraph rs {
 ')
 ```
 
+This is compatible with `cancer ~ asbestos + smoking` and `cancer ~ asbestos * smoking`
+
 This is a *moderator*
 
-## Model Search
+# Moderators and Mediators
+
+## Path Diagram
+
+Nodes (vertices) represent variables.
+
+Arrows go from predictor to predicted; often used to represent hypothesized causes.
+
+## Mediation Model
+
+A mediator goes in between
+
+```{r}
+DiagrammeR::grViz('
+digraph abc {
+  rankdir="LR"
+  a->b->c
+}
+')
+```
+
+If $b$ is removed then $a \rightarrow c$
+
+Partial mediation
+
+```{r}
+DiagrammeR::grViz('
+digraph abc {
+  rankdir="LR"
+  a->b->c
+  a->c
+}
+')
+```
+
+## Moderators
+
+Moderators affect the strength of the relationship between two other variables:
+
+```{r}
+DiagrammeR::grViz('
+digraph rs {
+  rankdir="LR"
+  i [label="" shape="point"] 
+  a -> i [arrowhead="none"]
+  i -> c
+  b -> i
+  
+  aa -> cc
+  bb -> cc
+}
+')
+```
+
+## Hidden Variables
+
+```{r}
+DiagrammeR::grViz('
+digraph hidden {
+  rankdir="LR"
+  subgraph h1 {
+    H1
+    A1 -> C1
+  }
+  subgraph h2 {
+    A2 -> H2
+    H2 -> C2
+  }
+  subgraph h3 {
+    H3 -> A3
+    H3 -> C3
+  }
+}
+')
+```
+
+All three result in conclusions $A\rightarrow C$
+
+## Selection effect
+
+```{r}
+DiagrammeR::grViz('
+digraph se {
+  rankdir="LR"
+  subgraph s1 {
+    A1 -> C1
+    S1
+  }
+  subgraph s2 {
+    A2 -> C2 [style="invis"]
+    A2 -> S2 -> C2
+  }
+  subgraph h3 {
+    A3 -> C3
+    S3 -> C3
+  }
+}
+')
+```
+
+# Model Search
 
 ```{r}
 names(earnings)
@@ -455,10 +570,27 @@ minMod <- log(earn+1) ~ male*education
 maxMod <- log(earn+1) ~ male*education + male*age + height + ethnicity + exercise + smokenow
 ```
 
+## Standardize Variables
+
+```{r}
+summary(earnings)
+```
+
+```{r}
+sapply(earnings,is.factor)
+```
+
+```{r}
+facs <- sapply(earnings,is.factor)
+earningz <- earnings
+earningz[!facs] <- scale(earnings[!facs])
+summary(earningz)
+```
+
 Fit Baseline model
 
 ```{r}
-earn1 <- na.omit(earnings)
+earn1 <- na.omit(earningz)
 bearn <- lm(minMod,earn1,earn1$earnk<350,na.action=na.omit)
 summary(bearn)
 ```
@@ -466,6 +598,57 @@ summary(bearn)
 ```{r}
 bearnf <- step(bearn,list(lower=minMod,upper=maxMod),trace=2)
 ```
+
+```{r}
+summary(bearnf)
+```
+
+# ACED Data
+
+Recall four conditions:
+
+-   Adaptive sequence, full feedback
+
+-   Adaptive sequence, accuracy feedback
+
+-   Linear sequence, full feedback
+
+-   Control
+
+Interested in difference is post-test (`post_scaled`).
+
+`post_scaled ~ Cond_code`
+
+But, there are differences in math ability before applying treatment.
+
+Force pretest (`pre_scaled`) into model to soak up the ability difference.
+
+`post_scaled ~ Cond_code + pre_scaled`
+
+Alternative is to use gain score, `post_scaled - pre_scaled`
+
+This does not account for unreliability of measure.
+
+Last question: is there an interaction between condition and pretest?\`
+
+`post_scaled ~ Cond_code * pre_scaled`
+
+```{r}
+names(ACEDextract)
+```
+
+```{r}
+acedminmod <- post_scaled ~ Cond_code + pre_scaled
+acedmaxmod <- post_scaled ~ Cond_code * pre_scaled + Gender + Race + Level_Code
+```
+
+## Fit the Initial Model
+
+## Model Selection
+
+## Interpret the Final Model
+
+## Aptitude-Treatment Interaction (ATI)
 
 # Job Satisfaction Data
 
