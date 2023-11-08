@@ -625,6 +625,8 @@ Force pretest (`pre_scaled`) into model to soak up the ability difference.
 
 `post_scaled ~ Cond_code + pre_scaled`
 
+$X=T+E$
+
 Alternative is to use gain score, `post_scaled - pre_scaled`
 
 This does not account for unreliability of measure.
@@ -633,14 +635,49 @@ Last question: is there an interaction between condition and pretest?\`
 
 `post_scaled ~ Cond_code * pre_scaled`
 
+Aptitude--Treatment Interaction (ATI)
+
 ```{r}
-names(ACEDextract)
+ggplot(ACEDextract,aes(x=pre_scaled,y=post_scaled,color=Cond_code)) +
+  geom_point()+geom_smooth(method="lm")
 ```
 
 ```{r}
-acedminmod <- post_scaled ~ Cond_code + pre_scaled
+ggplot(ACEDextract,aes(x=pre_scaled,y=post_scaled)) +
+  geom_point()+geom_smooth(method="lm")+facet_wrap(vars(Cond_code))
+``` 
+
+```{r}
+names(ACEDextract)
+levels(ACEDextract$Cond_code)
+```
+
+```{r}
+acedminmod <- post_scaled ~ C(Cond_code,base=3) + pre_scaled
 acedmaxmod <- post_scaled ~ Cond_code * pre_scaled + Gender + Race + Level_Code
 ```
+
+## Test for no interaction (ATI)
+
+```{r}
+acedbase <- lm(acedminmod,ACEDextract,na.action=na.omit)
+summary(acedbase)
+```
+```{r}
+acedati <- lm(post_scaled ~ Cond_code * pre_scaled, ACEDextract,na.action=na.omit)
+summary(acedati)
+```
+```{r}
+anova(acedbase,acedati)
+```
+
+```{r}
+ACEDextract %>% mutate(control=Cond_code=="control") -> ACEDextract
+acedcont <- lm(post_scaled ~ control + pre_scaled,ACEDextract, na.action=na.omit)
+summary(acedcont)
+```
+
+
 
 ## Fit the Initial Model
 
@@ -661,4 +698,12 @@ library(haven)
 ```{r}
 jobsat <- read_spss("../Homework/jobsat.sav")
 summary(jobsat)
+```
+
+```{r}
+ggplot(jobsat,aes(y=jobsatisfaction,x=stress)) + geom_point()
+```
+
+```{r}
+ggplot(jobsat,aes(y=jobsatisfaction,x=stress)) + geom_point(position="jitter")
 ```
