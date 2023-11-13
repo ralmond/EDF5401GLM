@@ -1,0 +1,94 @@
+---
+title: "Case Study 6, Logistic Regression"
+format: html
+---
+
+# Generalized Linear Models
+
+## GLM families
+
+* _Distribution_ -- A probability distribution $P(\boldsymbol{Y}|\boldsymbol{\mu},\boldsymbol{\nu})$
+  - $\boldsymbol{\mu} = E[\boldsymbol{Y}|\textbf{X}]$ -- expected value
+  - $\tau$ is a scale parameter (e.g., variance)
+* _Linear Predictor_ -- $\boldsymbol{\eta} = \textbf{X}\boldsymbol{\beta}$
+* _Link Function_ -- $g(\boldsymbol{\mu}) = \bolsymbol{\eta}$, or 
+$\boldsymbol{\mu} = g^{1}(\boldsymbol{\mu})$
+* _Variance Function_ -- $\boldsymbol{\nu} = V(\boldsymbol{\mu},\tau)$, where $\tau$ is a parameter estimated from the data.
+
+## Example:  Logistic Regressions
+
+* _Distribution_:  Binomial distribution, with parameter $p$.  Expected value is $p$ and variance is $p(1-p)$.
+
+* _Linear Predictor_:  $\boldsymbol{\eta} = \textbf{X}\boldsymbol{\beta}$
+
+* _Link Function_: Logit (log odds) function.  $\boldsymbol{p} = \text{logit}^{-1}(\boldsymbol{\eta})$.
+
+$$ \text{logit}(p) = \ln \frac{p}{1-p}$$
+
+```{r}
+curve(psych::logit(x),xlim=c(0,1))
+```
+
+Its inverse is the _logistic_ function
+
+$$ \text{logit}^{-1}(x) = \frac{1}{1+\exp(-x)}$$
+```{r}
+curve(psych::logistic(x),xlim=c(-6,6))
+```
+
+* _Variance_ is $p(1-p)$
+
+
+## Families
+
+* `gaussian(link="identity")` -- Ordinary Regression
+* `binomial(link="logit")` -- Logistic Regression:  True/False
+* `binomial(link="probit")` -- Probit Regression:  True/False
+* `poisson(link="log")` -- Loglinear models:  Contingency Tables
+
+
+# Heart Data
+This example is based on a study by @janosi1989 and recorded in the UCI Machine Learning Repository [@murphy1992]. The direct link is: <https://archive.ics.uci.edu/dataset/45/heart+disease>
+```{r Rpacks}
+library(tidyverse)
+```
+
+Read in the Cleveland data set from @janosi1989. The `heart.features` is information about the coding from the web site.
+
+```{r DownloadData}
+
+heart.features <- list(
+  Age=numeric(),
+  Sex=c(Male=1,Female=0),
+  CP=c(TypicalAnginal=1, AtypicalAnginal=2, NonAnginal=3, Asymptomatic=4),
+  trestbps=numeric(),
+  chol=numeric(),
+  fbs=c(high=1,normal=0),
+  restecg=c(Normal=0, STTabnormality=1, LeftVentricularHypertrophy=2),
+  thalach=numeric(),
+  exang=c(Yes=1, No=0),
+  oldpeak=numeric(),
+  slope=c(down=1, flat=2, up=3),
+  ca=c(Zero=0, One=1, Two=2, Three=3, Four=4),
+  thal=c(Normal=3, FixedDefect=6, ReversibleDefect=7),
+  health=c(Healthy=0, S1=1, S2=2, S3=3, S4=4)
+)
+
+cleveland <- read_csv("processed.cleveland.csv",
+                      col_names=names(heart.features),
+                      na="?")
+cleveland
+```
+
+```{r recode}
+for (f in names(heart.features)) {
+  if (length(heart.features[[f]])>0L) {
+    cleveland[[f]] <- factor(cleveland[[f]],heart.features[[f]],
+                             names(heart.features[[f]]))
+  }
+}
+
+cleveland
+```
+
+

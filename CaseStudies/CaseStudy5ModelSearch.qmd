@@ -1,6 +1,6 @@
 ---
 title: "Case Study 5"
-format: html
+format: pdf
 ---
 
 ```{r}
@@ -23,7 +23,7 @@ plot(y~x,data=normdat)
 
 # A little bit of TeX (LaTeX)
 
-$\TeX$ and $\LaTeX$
+$\text{\TeX}$ and $\text{\LaTeX}$
 
 ## Commands & Groups
 
@@ -685,7 +685,11 @@ summary(acedcont)
 
 ## Interpret the Final Model
 
-## Aptitude-Treatment Interaction (ATI)
+```{r}
+library(effects)
+help("effects")
+```
+
 
 # Job Satisfaction Data
 
