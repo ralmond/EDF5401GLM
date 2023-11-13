@@ -1,6 +1,6 @@
 ---
 title: "Case Study 5"
-format: html
+format: pdf
 ---
 
 ```{r}
@@ -23,7 +23,7 @@ plot(y~x,data=normdat)
 
 # A little bit of TeX (LaTeX)
 
-$\TeX$ and $\LaTeX$
+$\text{\TeX}$ and $\text{\LaTeX}$
 
 ## Commands & Groups
 
@@ -648,7 +648,11 @@ acedmaxmod <- post_scaled ~ Cond_code * pre_scaled + Gender + Race + Level_Code
 
 ## Interpret the Final Model
 
-## Aptitude-Treatment Interaction (ATI)
+```{r}
+library(effects)
+help("effects")
+```
+
 
 # Job Satisfaction Data
 
