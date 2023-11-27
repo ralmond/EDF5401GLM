@@ -1,0 +1,49 @@
+---
+title: "Learning Curve Data Generation"
+format: html
+---
+
+```{r}
+library(tidyverse)
+```
+
+
+## Data Generation Function
+
+```{r}
+lcgen <- function(N,T,pL0,pLt,g=.2,s=.1) {
+  L <- matrix(0,N,T)
+  L[,1] <- runif(N) < pL0
+  if (T>1) {
+    for (t in 2:T) {
+      L[,t] <- L[,t-1] | (runif(N)<pLt)
+    }
+  }
+  X <- matrix(runif(N*T),N,T) < ifelse(L,1-s,g)
+  list(L=L,X=X)
+}
+```
+
+## Generate a data set
+
+```{r}
+Refdat <- data.frame(lcgen(50,8,.3,.25)$X)
+Focdat <- data.frame(lcgen(50,8,.2,.2)$X)
+colnames(Refdat) <- paste("T",1:8,sep="")
+colnames(Focdat) <- paste("T",1:8,sep="")
+testdat <- data.frame(SID=c(sprintf("R%02d",1:50),sprintf("F%02d",1:50)),
+                      group=factor(rep(c("Reference","Focal"),each=50)),
+                      rbind(Refdat,Focdat))
+testdat
+```
+
+```{r}
+homework <- pivot_longer(testdat,starts_with("T"),names_to="attempt",values_to="success")
+homework <- mutate(homework,attempt=parse_number(attempt))
+homework
+```
+
+```{r}
+write_csv(homework,"homework.csv")
+```
+
