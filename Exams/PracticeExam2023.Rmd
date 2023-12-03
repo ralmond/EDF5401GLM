@@ -1,0 +1,437 @@
+---
+title: "EDF 5401 Practice Final"
+author: "Russell Almond"
+date: "`r Sys.Date()`"
+output: word_document
+---
+
+# Physics Playground Background
+
+## The Game
+
+_Physics Playground_ is a game for teaching physics.  One part of the program is 
+learning supports.  There were two kinds of learning supports:
+
+* _Cogntive Supports_:  Short videos explaining the physics.
+* _Affective Supports_:  Motivational messages and diversions designed to help 
+alleviate frustration.
+
+There are matched pretests and posttests which are divided into four parts:
+
+* `NearECT` --- Energy can transfer (ECT), near transfer (similar to the game) items
+* `FarECT` --- Energy can transfer (ECT), far transfer (not similar to the game) items
+* `NearPOT` --- Properties of torque (POT), near transfer
+* `FarPOT` --- Properties of torque (POT), far transfer
+
+More information about the game and the experiment can be found at 
+<https://pluto.coe.fsu.edu/PhysicsDataPlayground/>.
+
+## The support efficacy experiment and key variables
+
+The experiment is a bit complex, with half of the student getting the ECT game levels 
+and posttest in the first half of the experiment and the others in the second half.  
+For simplicity we will work with just the ECT-first:  `Topic1=="ECT"`.
+
+For these students, there are three condition groups (`Condition`):
+
+* `A` -- Cognitive Supports Only
+* `C` -- Cognitive and Affective Support
+* `F` -- No supports (control)
+
+The variables, `CognitiveSupports` and `AffectiveECT` are logical variables describing
+whether or not the cognitive supports and the affective supports were present (during 
+the first half of the study).
+
+The pretest score is labeled `ECT` and the posttest score is labeled `ECTpost`.  
+There is also a `NearECT` and `NearECTpost` (just the near transfer items) and
+a `FarECT` and `FarECTpost` (far transfer items).
+
+## Additional covariates
+
+`Age`
+: Self-reported age in years.
+
+`Sex`, `Gender`
+: Self-reported gender
+
+`White`
+: Whether or not the subject identified as White.
+
+`Gaming`
+: "How often do you play video games?"  Ordinal, possible values:   
+`Never`,	`Once a month or less`,	`Once a week`,	`3-4 times a week`,	`Every day`
+
+`Physics`
+: "Have you studied Physics?" Possible answers `Yes`, `No`.
+
+`POT`
+: Score on the properties of torque physics pretest.
+
+`PhysicsScore`
+: `POT + ECT`
+
+`IMI_Enj`
+: Enjoyment subscale of the intrinsic motivation inventory (IMI)
+
+`IMI_Eng`
+: Engagement subscale of the IMI
+
+`IMI_PC`
+: Player confidence subscale of the IMI
+
+`IMI_Effort` 
+: Effort subscale of the IMI
+
+`IMI_Frust`
+: Frustration subscale of the IMI
+
+`IMI_Value`
+: Value of experience subscale IMI
+
+`gold`, `silver`, `quit`
+: The number of game levels in which the player received a gold trophy 
+(solved the level with an efficient solution), silver trophy (solved the level, but 
+did not meet the qualifications for efficiency), or abandoned the level without
+solving it.
+
+## Data Loading and cleaning
+
+```{r}
+#| warning: false
+#| message: false
+library(tidyverse)
+library(DescTools)
+library(rgl)
+library(GGally)
+```
+
+Load the data (from the internet)
+
+```{r load}
+source("https://pluto.coe.fsu.edu/PhysicsDataPlayground/Data/AllMetadata.R")
+PPIESFall2022 <- 
+  read_csv("https://pluto.coe.fsu.edu/PhysicsDataPlayground/Data/PPIESFall2022Full.csv",
+           col_types=colAll)
+```
+
+Extract a subset of the data with just the cases/variables we are working with.
+
+```{r}
+PPIESExtract <- PPIESFall2022 |>
+  filter(Topic1=="ECT") |>
+  select(all_of(c("StudyID", "Condition", "CognitiveSupports", "AffectiveECT",
+                  "Age", "Sex", "White", "Gaming", "Physics", 
+                  "NearECT", "FarECT", "ECT",  "NearECTpost", "FarECTpost",
+                  "ECTpost", "POT", "PhysicsScore",
+                  "IMI_Enj", "IMI_Eng", "IMI_PC", "IMI_Effort", "IMI_Frust",
+                  "IMI_Value",
+                  "gold", "silver", "quit"))) |>
+  na.omit()
+summary(PPIESExtract)         
+```
+
+Only three students who identify as nonbinary.  Too small to analyze, so take them 
+out.
+
+## Derieved variables
+
+Gain Scores
+```{r gains}
+PPIESExtract <- PPIESExtract |>
+  mutate(ECTgain=ECTpost-ECT,
+         NearECTgain=NearECTpost-NearECT,
+         FarECTgain=FarECTpost-FarECT,
+         LowECT= ECT<median(ECT))
+```
+
+The reason for LowECT will become apparent later.
+
+```{r CleanGender}
+PPIESExtract <- filter(PPIESExtract,Sex %in% c("Male","Female"))
+```
+
+### Some changes for interpretability
+
+Ages run from 12-16 (middle and high school students).   Create an new variable 
+`Age1` for subtracts 0, so it is essential years of schooling since elementary 
+school.
+
+Center physics variable to aid in interpretation.
+
+```{r Age1}
+PPIESExtract <- mutate(PPIESExtract,Age1=Age-12,
+                       PhysicsCenter=PhysicsScore-mean(PhysicsScore))
+```
+
+It will be convenient (mainly for graphics) to have better labeled condition variable.
+
+```{r supports}
+PPIESExtract$Supports <- 
+  factor(PPIESExtract$CognitiveSupports+PPIESExtract$AffectiveECT,
+         levels=0:2,labels=c("None","COG only","COG+AFF"))
+```
+
+## Enjoyment definition
+
+For the logistic regression, we will define Enjoyed as `IMI_Enj >7` (This ranges from
+2--14).
+
+```{r Enj}
+PPIESExtract <- mutate(PPIESExtract,Enjoyed=IMI_Enj>8)
+```
+
+
+Write this out in SPSS format so we can do a parallel analysis there.
+```{r}
+haven::write_sav(PPIESExtract,"PPIESExtract.sav")
+```
+
+
+
+# ANCOVA
+
+The primary analysis will be an ANCOVA with `ECTpost` as the dependent variable, 
+`ECT` as the covariate, and `CognitiveSupport` and `AffectiveECT` as the treatment 
+variables.  In addition we will explore other possible covariates.
+
+## Exploratory Analysis
+
+```{r ECTscatter}
+ggplot(PPIESExtract,aes(x=ECT,y=ECTpost)) + geom_point(position="jitter") +
+  geom_smooth()
+```
+
+Treatment by condition breakdown
+
+```{r ECTprepostbyCond}
+ggplot(PPIESExtract,aes(x=ECT,y=ECTpost,color=Supports)) +
+  geom_point(position="jitter") +
+  geom_smooth()
+
+```
+
+
+### Demographic Breakdowns
+
+```{r ECTbyGender}
+ggplot(PPIESExtract,aes(x=ECT,y=ECTpost,color=Sex)) + 
+  geom_point(position="jitter") +
+  geom_smooth()
+```
+
+```{r ECTbyAge}
+ggplot(PPIESExtract,aes(x=ECT,y=ECTpost,color=factor(Age))) + 
+  geom_point(position="jitter") +
+  geom_smooth()
+```
+```{r ECTbyRace}
+ggplot(PPIESExtract,aes(x=ECT,y=ECTpost,color=White)) + 
+  geom_point(position="jitter") +
+  geom_smooth()
+```
+
+```{r ECTbyGaming}
+ggplot(PPIESExtract,aes(x=ECT,y=ECTpost,color=Gaming)) + 
+  geom_point(position="jitter") +
+  geom_smooth()
+```
+```{r ECTbyPhysics}
+ggplot(PPIESExtract,aes(x=ECT,y=ECTpost,color=Physics)) + 
+  geom_point(position="jitter") +
+  geom_smooth()
+```
+
+Look at the correlation between the trophy variables and ECT with a scatterplot 
+matrix.
+
+```{r ECTbyTropies}
+#| warning: false
+#| message: false
+select(PPIESExtract,all_of(c("ECTpost","ECT","gold","silver","quit"))) |>
+  ggpairs()
+```
+
+### Treatment Effect 
+
+A = Cognitive Only
+C = Cogntivie + Affective
+F = Control (no supports)
+
+```{r}
+ggplot(PPIESExtract,aes(x=Supports,y=ECTgain)) + geom_boxplot()
+
+```
+## Baseline Model
+
+```{r}
+ECTbase <- lm(ECTpost ~ ECT + Supports,data=PPIESExtract)
+summary(ECTbase)
+```
+
+## ATI Model
+
+```{r ATI}
+ECTATI <- lm(ECTpost ~ ECT * Supports,data=PPIESExtract)
+summary(ECTATI)
+```
+```{r ATIAnova}
+anova(ECTbase,ECTATI)
+```
+## Diagnostic plots
+
+```{r plot.lm}
+oldpar <- par(mfrow=c(2,2)) # Put all of the plot together
+plot(ECTbase)
+par(oldpar) # Restore the graphics window
+
+```
+## Influential points
+
+```{r dfbetas}
+dfb <- dfbetas(ECTbase)
+summary(dfb)
+```
+
+Flagging value is `{r} 2/sqrt(nrow(dfb))`
+
+```{r flagging}
+## Calculate a logical value rows higer than flagged value.
+flags <- apply(dfb,1,function(r) any(r>2/sqrt(nrow(dfb))))
+PPIESExtract$StudyID[flags]
+dfb[flags,]
+```
+
+
+### Remove flagged values
+
+```{r noinf}
+ECTnoinf <- lm(ECTpost ~ ECT + Supports, data=PPIESExtract,
+               subset = !flags)
+summary(ECTnoinf)
+```
+
+```{r coefficent table}
+rbind(base=coef(ECTbase),
+      noinf=coef(ECTnoinf))
+```
+
+## Exploring more models
+
+```{r search}
+ECTminmod <- ECTpost ~ ECT + Supports
+ECTmaxmod <- ECTpost ~ ECT + Supports + Age + Sex + White + Gaming +
+  Physics + POT + gold + silver + quit
+ECTstep <- step(ECTbase,list(lower=ECTminmod,upper=ECTmaxmod),trace=2)
+```
+
+```{r}
+summary(ECTstep)
+```
+
+## Splitting into High and Low initial ECT values
+
+Added the median split variable so that we could fit separate slopes to high and 
+low ECT values.
+
+```{r highlow}
+ECThighlow <- lm(ECTpost ~ ECT*LowECT + Supports*LowECT,data=PPIESExtract)
+summary(ECThighlow)
+```
+
+```{r lowAnova}
+anova(ECTbase,ECThighlow)
+```
+
+# Logistic Regression
+
+The research question is what is the relationship between game enjoyment and physics 
+ability (as measured by the pretest), `PhysicsScore`
+
+The `IMI_Enj` variables is the sum of two 7-option Likert scale items, so 8 is 
+neutral on both variables.  So define enjoyment as `IMI_Enj > 8`.
+
+Also, look at the role of gender.
+
+## Exploratory analysis
+
+```{r EnjoyXPhysics}
+ggplot(PPIESExtract,aes(x=PhysicsScore,y=as.numeric(Enjoyed))) +
+  geom_point(position=position_jitter(width=.5,height=.1)) +
+  geom_smooth()
+```
+
+Enjoyment by Gender
+
+```{r EnjGender}
+table(PPIESExtract$Enjoyed,PPIESExtract$Sex)
+```
+
+All three variables together
+
+```{r EnjPhySex}
+ggplot(PPIESExtract,aes(x=PhysicsScore,y=as.numeric(Enjoyed),color=Sex)) +
+  geom_point(position=position_jitter(width=.5,height=.1)) +
+  geom_smooth()
+```
+
+## Base Model
+
+```{r logPhy}
+ENJphys <- glm(Enjoyed ~ PhysicsCenter, data=PPIESExtract,
+              family=binomial())
+summary(ENJphys)
+```
+
+Prediction at mean physics ability
+```{r pred}
+round(psych::logistic(coef(ENJphys)[1]),2)
+```
+
+
+## Model with gender
+
+```{r logPhyGen}
+ENJphysG <- glm(Enjoyed ~ PhysicsCenter + Sex, data=PPIESExtract,
+              family=binomial())
+summary(ENJphysG)
+```
+Prediction at mean physics ability
+
+```{r predG}
+round(psych::logistic(coef(ENJphysG)[1]+c(Male=0,Female=1)*coef(ENJphysG)[3]),2)
+```
+
+## Model with gender interaction
+
+```{r logPhyXGen}
+ENJphysXG <- glm(Enjoyed ~ PhysicsCenter * Sex, data=PPIESExtract,
+              family=binomial())
+summary(ENJphysXG)
+```
+Prediction at mean physics ability
+
+```{r predXG}
+round(psych::logistic(coef(ENJphysXG)[1]+c(Male=0,Female=1)*coef(ENJphysXG)[3]),2)
+```
+
+
+## Analysis of Deviance
+
+Like Analysis of Variance, only with Deviance & chi-squared.
+
+```{r AOD}
+anova(ENJphys,ENJphysG,ENJphysXG)
+```
+
+The differences in deviance are chi-squared valued.
+
+Here is a chi-square table.
+```{r chi2}
+chi2.1.table <- rbind(prob=c(.5,.75,.9,.95,.99),
+                      X2=qchisq(c(.5,.75,.9,.95,.99),1))
+round(chi2.1.table,2)
+
+```
+
+
+
