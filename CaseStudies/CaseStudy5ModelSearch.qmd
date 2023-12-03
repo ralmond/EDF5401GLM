@@ -654,17 +654,21 @@ levels(ACEDextract$Cond_code)
 
 ```{r}
 acedminmod <- post_scaled ~ C(Cond_code,base=3) + pre_scaled
-acedmaxmod <- post_scaled ~ Cond_code * pre_scaled + Gender + Race + Level_Code
+acedmaxmod <- post_scaled ~ C(Cond_code,base=3) * pre_scaled + Gender + Race + Level_Code
 ```
 
 ## Test for no interaction (ATI)
 
 ```{r}
-acedbase <- lm(acedminmod,ACEDextract,na.action=na.omit)
+ACEDex1 <- select(ACEDextract,all_of(c("post_scaled","pre_scaled","Cond_code",
+                                       "Gender","Race","Level_Code"))) %>%
+  na.omit()
+names(ACEDex1)
+acedbase <- lm(acedminmod,ACEDex1)
 summary(acedbase)
 ```
 ```{r}
-acedati <- lm(post_scaled ~ Cond_code * pre_scaled, ACEDextract,na.action=na.omit)
+acedati <- lm(post_scaled ~ Cond_code * pre_scaled, ACEDex1)
 summary(acedati)
 ```
 ```{r}
@@ -672,8 +676,8 @@ anova(acedbase,acedati)
 ```
 
 ```{r}
-ACEDextract %>% mutate(control=Cond_code=="control") -> ACEDextract
-acedcont <- lm(post_scaled ~ control + pre_scaled,ACEDextract, na.action=na.omit)
+ACEDex1 %>% mutate(control=Cond_code=="control") -> ACEDex1
+acedcont <- lm(post_scaled ~ control + pre_scaled,ACEDex1)
 summary(acedcont)
 ```
 
@@ -683,12 +687,60 @@ summary(acedcont)
 
 ## Model Selection
 
+```{r}
+acedfinal <- step(acedbase,list(lower=acedminmod,upper=acedmaxmod),trace=2)
+```
+
+```{r}
+table(ACEDex1$Level_Code,ACEDex1$Race)
+```
+
 ## Interpret the Final Model
 
 ```{r}
 library(effects)
 help("effects")
 ```
+
+
+```{r}
+eff.aced <- allEffects(acedbase)
+names(eff.aced)
+```
+
+```{r}
+coef(summary(acedbase))
+```
+
+```{r}
+effs <- as.data.frame(coef(summary(acedbase))[2:4,1:2])
+effs$condition <- factor(c("adaptive_acc","adaptive_full","linear_full"))
+effs$lb <- effs$Estimate - 2*effs$`Std. Error`
+print(effs,digit=3)
+```
+
+```{r}
+ggplot(effs,aes(x=condition,y=Estimate)) + geom_point() +
+  geom_errorbar(aes(ymin=Estimate-2*`Std. Error`,ymax=Estimate+2*`Std. Error`)) +
+  geom_hline(aes(yintercept=0))
+```
+```{r}
+coef(summary(acedfinal))
+```
+
+
+```{r}
+effs1 <- as.data.frame(coef(summary(acedfinal))[2:4,1:2])
+effs1$condition <- factor(c("adaptive_acc","adaptive_full","linear_full"))
+print(effs1,digit=3)
+```
+```{r}
+ggplot(effs1,aes(x=condition,y=Estimate)) + geom_point() +
+  geom_errorbar(aes(ymin=Estimate-2*`Std. Error`,ymax=Estimate+2*`Std. Error`)) +
+  geom_hline(aes(yintercept=0))
+
+```
+
 
 
 # Job Satisfaction Data

@@ -1,6 +1,9 @@
 ---
 Title: 'Homework 3:  Logistic Regression'
 output: word_document
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r}
@@ -10,12 +13,13 @@ library(DiagrammeR)
 
 # A Quick Introduction to Knowledge Tracing
 
-The knowledge tracing model [(Corbet and Anderson, 1995)](CorbettAnderson1995.pdf) posits
-that there is a latent skill, whose value at Time $t$ is $L_t$.  Each time the student
-practices the skill there is a chance that the student learns the skill ($L_{t+1} =1$).
-The diagram below shows this struction, where $L_t$ are the latent skills, and $Y_t$ are
-the observed correct/incorrect scores for the items.
-
+The knowledge tracing model [(Corbet and Anderson,
+1995)](CorbettAnderson1995.pdf) posits that there is a latent skill,
+whose value at Time $t$ is $L_t$. Each time the student practices the
+skill there is a chance that the student learns the skill
+($L_{t+1} =1$). The diagram below shows this struction, where $L_t$ are
+the latent skills, and $Y_t$ are the observed correct/incorrect scores
+for the items.
 
 ```{r}
 DiagrammeR::grViz('
@@ -40,34 +44,41 @@ L8 -> Y8
 }')
 ```
 
-Following [Van de Sande, 2013](VandeSande2013.pdf), this model has four parameters.
+Following [Van de Sande, 2013](VandeSande2013.pdf), this model has four
+parameters.
 
-- $P(L_0)$ -- Probability student has the skill at Time 0 (before the first exercise).
-- $P(T)$ -- Probability that a student who is a non-master makes the transition to mastery 
-at a practice occasion
-- $P(G)$ -- Probability that a non-master gets the item correct (guessing)
-- $P(S)$ -- Probabiity that a master gets the item incorrect (slipping)
+-   $P(L_0)$ -- Probability student has the skill at Time 0 (before the
+    first exercise).
+-   $P(T)$ -- Probability that a student who is a non-master makes the
+    transition to mastery at a practice occasion
+-   $P(G)$ -- Probability that a non-master gets the item correct
+    (guessing)
+-   $P(S)$ -- Probabiity that a master gets the item incorrect
+    (slipping)
 
-After some algebra, it can be seen that the students probability of success at Time $t$ can
-be written as 
+After some algebra, it can be seen that the students probability of
+success at Time $t$ can be written as
 
-$$ P(Y_t=0) = \textrm{logit}^{-1}( \alpha + \beta t) \ , $$
+$$ P(Y_t=1) = \textrm{logit}^{-1}( \alpha + \beta t) \ , $$
 
-where $\beta = \log(1-P(T))$ (and $\alpha$ is a complex function of all of the parameters.
-Thus we can fit this model by using logistic regression.
+where $\beta = \log(1-P(T))$ (and $\alpha$ is a complex function of all
+of the parameters. Thus we can fit this model by using logistic
+regression.
 
 # The Data
 
-The data in [`homework.csv`](homework.csv) is simulated data from a homework system.  There are 100 students and there are four variables.
+The data in [`homework.csv`](homework.csv) is simulated data from a
+homework system. There are 100 students and there are four variables.
 
-- `SID` the student ID
-- `group` a demographic group, which takes the values `Focal` and `Reference`. (Focal and 
-reference are names used in differential item functioning analysis, usually the "focal" 
-group is one which has some history of discrimination, and the reference group is a higher
-status comparison group.)
-- `attempt` the trial number (or time in the above discussion)
-- `success` A logical value indicating whether the student was success at that trial or not.
-
+-   `SID` the student ID
+-   `group` a demographic group, which takes the values `Focal` and
+    `Reference`. (Focal and reference are names used in differential
+    item functioning analysis, usually the "focal" group is one which
+    has some history of discrimination, and the reference group is a
+    higher status comparison group.)
+-   `attempt` the trial number (or time in the above discussion)
+-   `success` A logical value indicating whether the student was success
+    at that trial or not.
 
 ```{r}
 homework <- read.csv("homework.csv")
@@ -79,18 +90,18 @@ summary(homework)
 
 ## 1. Learning curve
 
-Calculate the fraction of successful trials for each time point (1 through 8).
-Plot the trial number versus the success probability.  This is known as the _learning 
-curve_.
+Calculate the fraction of successful trials for each time point (1
+through 8). Plot the trial number versus the success probability. This
+is known as the *learning curve*.
 
 ## 2. Plot the data with an estimated curve.
 
-Note:  you will want to jitter the values so they can be seen, and also add a lowess curve.
+Note: you will want to jitter the values so they can be seen, and also
+add a lowess curve.
 
 ## 3. Fit a logistic regression
 
-Use the model `success ~ attempt`
-Write up a summary of the results.
+Use the model `success ~ attempt` Write up a summary of the results.
 
 ## 4. Interpret the slope
 
@@ -102,16 +113,14 @@ Describe the difference if any between the groups.
 
 ## 6. Pick the right model with the group
 
-Fit both the model `success ~ attempt + group` (no interaction with slope) and
-`success ~ attempt * group` (adds an interaction) and compare them to the no group model 
-`success ~ attempt` which you fit before.  Which model do you like better and 
-why?
+Fit both the model `success ~ attempt + group` (no interaction with
+slope) and `success ~ attempt * group` (adds an interaction) and compare
+them to the no group model `success ~ attempt` which you fit before.
+Which model do you like better and why?
 
 ## 7. Describe the model you picked in words and equations.
 
 ## 8. Make a graph of the final model
 
-Hint:  Predict the success rate for people in both the reference and focal groups at 
-attempts 1 through 8 and plot that.
-
-
+Hint: Predict the success rate for people in both the reference and
+focal groups at attempts 1 through 8 and plot that.
