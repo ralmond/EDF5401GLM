@@ -2,7 +2,8 @@
 title: "EDF 5401 Practice Final"
 author: "Russell Almond"
 date: "`r Sys.Date()`"
-output: word_document
+format:
+  pdf
 ---
 
 # Physics Playground Background
