@@ -1,0 +1,231 @@
+---
+title: "Attendance"
+author: "Russell Almond"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(GGally)
+```
+
+# Part 1 -- Multiple Regression
+
+## Crime data set.  
+
+These data come from <http://www.statsci.org/data/general/uscrime.html>.
+
+They show various information about 47 states from 1960.
+
+Here are the variable descriptions:
+
+M
+: percentage of males aged 14–24 in total state population
+
+So
+: indicator variable for a southern state
+
+Ed
+: mean years of schooling of the population aged 25 years or over
+
+Po1
+: per capita expenditure on police protection in 1960
+
+Po2
+: per capita expenditure on police protection in 1959
+
+LF
+: labour force participation rate of civilian urban males in the age-group 14-24
+
+M.F
+: number of males per 100 females
+
+Pop
+: state population in 1960 in hundred thousands
+
+NW
+: percentage of nonwhites in the population
+
+U1
+: unemployment rate of urban males 14–24
+
+U2
+: unemployment rate of urban males 35–39
+
+Wealth
+: median value of transferable assets or family income
+
+Ineq
+: income inequality---percentage of families earning below half the median income
+
+Prob
+: probability of imprisonment--ratio of number of commitments to number of offenses
+
+Time
+: average time in months served by offenders in state prisons before their first release
+
+Crime
+: crime rate---number of offenses per 100,000 population in 1960
+
+The goal is to find what factors predict a high crime rate, that is predict crim.
+
+## Read the data
+
+```{r}
+UScrime <- read.delim("http://www.statsci.org/data/general/uscrime.txt")
+summary(UScrime)
+```
+
+
+
+## Scatterplot matrixes
+
+We will do this a couple at a time so we can see the scatterplots.
+
+```{r}
+#| message: false
+mutate(UScrime,Southern=as.logical(So)) |>
+  ggpairs(columns=c("M","M.F","Southern","Ed","Crime"))
+```
+```{r}
+#| message: false
+mutate(UScrime,Southern=as.logical(So)) |>
+  ggpairs(columns=c("Po1","Po2","LF","Pop","Crime"))
+```
+```{r}
+#| message: false
+mutate(UScrime,Southern=as.logical(So)) |>
+  ggpairs(columns=c("NW","U1","U2","Wealth","Crime"))
+```
+
+```{r}
+#| message: false
+mutate(UScrime,Southern=as.logical(So)) |>
+  ggpairs(columns=c("Wealth","Ineq","Prob","Time","Crime"))
+```
+
+## Scatterplot with Policing
+
+```{r}
+ggplot(UScrime,aes(x=Po1,y=Crime)) + geom_point() + 
+  geom_smooth()
+```
+## Scatterplot with Policing
+
+```{r}
+ggplot(UScrime,aes(x=Po1,y=Crime,color=as.logical(So))) + geom_point() + 
+  geom_smooth()
+```
+
+## Model with just policing
+
+```{r}
+lmPo1 <- lm(Crime~Po1,data=UScrime)
+summary(lmPo1)
+```
+
+### Diagnostic plots
+
+Using the `which` argument allow us to look at the plots one at a time.  (The default
+uses plots 1, 2, 3 and 5).
+
+```{r}
+plot(lmPo1,which=1)
+```
+```{r}
+plot(lmPo1,which=2)
+```
+
+```{r}
+plot(lmPo1,which=3)
+```
+
+```{r}
+plot(lmPo1,which=5)
+```
+
+## Data using log crime rate as Y
+
+```{r}
+lmlPo1 <- lm(log(Crime)~Po1,data=UScrime)
+summary(lmlPo1)
+```
+
+```{r}
+plot(lmlPo1,which=1)
+```
+```{r}
+plot(lmlPo1,which=2)
+```
+```{r}
+plot(lmlPo1,which=3)
+```
+```{r}
+plot(lmlPo1,which=5)
+```
+
+## Include Policing in both years
+
+```{r}
+lmlPo12 <- lm(log(Crime) ~ Po1 + Po2,data=UScrime)
+summary(lmlPo12)
+```
+
+## Model Search
+
+```{r}
+lmlstep <- step(lmlPo1,list(lower=log(Crime)~1,
+                            upper=log(Crime)~M+So+Ed+Po1+Po2+LF+M.F+Pop+
+                              NW+U1+U2+Wealth+Ineq+Prob+Time),
+                            trace=2)
+```
+
+## Summary of final model
+
+```{r}
+summary(lmlstep)
+```
+
+```{r}
+plot(lmlstep,which=1)
+```
+```{r}
+plot(lmlstep,which=2)
+```
+```{r}
+plot(lmlstep,which=3)
+```
+```{r}
+plot(lmlstep,which=5)
+```
+## Analysis with Centered data
+
+Scale all of the variables except Y.  Our Y is the last variable
+
+```{r}
+UScrimeCC <- scale(UScrime[,-ncol(UScrime)])
+## Add crime back as unscaled.
+UScrimeC <- as.data.frame(cbind(UScrimeCC,Crime=UScrime[,ncol(UScrime)]))
+summary(UScrimeC)
+```
+
+```{r}
+lmlstepC <- lm(formula(lmlstep),data=UScrimeC)
+summary(lmlstepC)
+```
+
+## Write out data for SPSS analysis
+
+Want to add the centered data as it is faster to do that here than in SPSS.
+Change the names on `UScrimeC` to a common pattern, adding "C" to the end of each.
+
+```{r}
+colnames(UScrimeCC) <- paste(colnames(UScrimeCC),"C",sep="")
+haven::write_sav(cbind(UScrime,UScrimeCC),"UScrime.sav")
+```
+

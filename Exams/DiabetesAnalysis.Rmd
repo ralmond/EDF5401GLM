@@ -1,0 +1,150 @@
+---
+title: "Diabetes Risk"
+author: "Russell Almond"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+# Diabetes Risk Data
+
+These data come from the [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/dataset/529/early+stage+diabetes+risk+prediction+dataset). 
+There are related to patients in a certain diabetes hospital in Bangledesh.  It is not
+explicitly stated, but it probably refers to Type II diabetes (as Type I is usually
+identified in childhood).
+
+We will look at the risk of diabetes using three variables:  `Age`, `Sex` (the 
+phenotype not the gender expression) and `Obesity`.  
+
+## Read and clean data
+
+```{r}
+read_csv("diabetes_data_upload.csv") |> 
+  mutate(Diabetic=as.factor(class),Sex=factor(Gender),Obese=factor(Obesity)) |>
+  select(all_of(c("Age","Sex","Obese","Diabetic"))) ->
+  DData
+summary(DData)
+```
+
+## Exploratory Analyses
+
+```{r}
+ggplot(DData,aes(x=Age,y=as.numeric(Diabetic))) +
+  geom_point(position=position_jitter(width=.5,height = .1)) +
+  geom_smooth()
+```
+
+```{r}
+ggplot(DData,aes(x=Age,y=as.numeric(Diabetic),color=Sex)) +
+  geom_point(position=position_jitter(width=.5,height = .1)) +
+  geom_smooth()
+```
+
+```{r}
+ggplot(DData,aes(x=Age,y=as.numeric(Diabetic),color=Obese)) +
+  geom_point(position=position_jitter(width=.5,height = .1)) +
+  geom_smooth()
+```
+
+Only two different variables, so we can get them all on the same plot:  (If it is not clear from the legend, the dashed line is `Obese==Yes`.
+
+```{r}
+ggplot(DData,aes(x=Age,y=as.numeric(Diabetic),color=Sex,shape=Obese,linetype=Obese)) +
+  geom_point(position=position_jitter(width=.5,height = .1)) +
+  geom_smooth()
+```
+
+# First model
+
+```{r}
+glmAge <- glm(Diabetic~Age,data=DData,family=binomial())
+summary(glmAge)
+```
+I'm going to do this a lot, so might as well write a function.
+```{r}
+APAsum <- function (model) {
+  df <- model$df.null-model$df.residual
+  X2 <- model$null.deviance- model$deviance
+  p <- 1-pchisq(X2,df)
+  paste("X^2(",df,") =", round(X2,2), 
+        ifelse(p<.001, ", p < .001", paste(", p =",round(p,3))))
+}
+cat(APAsum(glmAge),"\n")
+```
+
+# Now Add Sex
+
+I'll directly fit the interaction model and maybe simplify it later.
+
+```{r}
+glmAgeSex <- glm(Diabetic~Age*Sex,data=DData,family=binomial())
+summary(glmAgeSex)
+cat(APAsum(glmAgeSex),"\n")
+```
+
+## Same trick with Obesity
+
+```{r}
+glmAgeFat <- glm(Diabetic~Age*Obese,data=DData,family=binomial())
+summary(glmAgeFat)
+cat(APAsum(glmAgeFat),"\n")
+```
+
+## Model Search
+
+We will consider the full model including three-way interactions:
+
+```{r}
+glmStep <- step(glmAge,list(lower=Diabetes~1,  # constant risk
+                            upper=Diabetes~Age*Sex*Obese),
+                trace=2)
+```
+
+## Final model
+
+```{r}
+summary(glmStep)
+cat(APAsum(glmStep),"\n")
+```
+
+## Predictions
+
+```{r}
+risktab <- data.frame(Age=rep(15+5*(1:11),each=4),
+                  Sex=factor(rep(rep(levels(DData$Sex),each=2),11)),
+                  Obese=factor(rep(levels(DData$Obese),22)))
+head(risktab)
+```
+
+
+```{r}
+risktab$Risk <- psych::logistic(predict(glmStep,risktab))
+head(risktab)
+```
+
+This will be easier to look at if we turn `Sex` and `Obese` into columns.  Can do this with the pivot function.
+
+In the chart below "Yes" and "No" refer to Obsese, so "Male_Yes" is an obese male, 
+and "Male_No" is a non-obese male.
+
+```{r}
+riskchart <- pivot_wider(risktab,id_cols=Age,names_from=all_of(c("Sex","Obese")),
+                         values_from=Risk)
+knitr::kable(riskchart,digits=2)
+```
+
+
+Save the data out for use in SPSS.
+
+```{r}
+haven::write_sav(DData,"diabetesRisk.sav")
+```
+
+
