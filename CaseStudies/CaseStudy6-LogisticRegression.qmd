@@ -158,9 +158,15 @@ lr1
 summary(lr1)
 ```
 
+Can test if the model does "significantly" better than the null model by looking at difference between Null Deviance and Residual Deviance. This has chi-square distribution with d.f. equal to number of parameters other than intercept.
+
 ```{r}
+lr1$null.deviance-lr1$deviance
 1-pchisq(15,1)
+
 ```
+
+Pseudo R-squared (method 1)
 
 ```{r}
 (lr1$null.deviance-lr1$deviance)/lr1$null.deviance

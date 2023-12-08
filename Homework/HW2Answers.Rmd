@@ -1,0 +1,67 @@
+---
+title: "Homework 2"
+output: pdf_document
+date: "2023-12-04"
+---
+
+```{r}
+library(tidyverse)
+library(haven)
+library(GGally)
+```
+
+```{r}
+haven::read_sav("Homework/jobsat.sav") -> jobsat
+```
+
+# 2 Histograms
+```{r}
+summary(jobsat)
+```
+
+```{r}
+ggplot(jobsat,aes(x=jobsatisfaction))+geom_histogram()
+```
+
+```{r}
+#| message: false
+select(jobsat,all_of(c("jobsatisfaction", "currentsalary", "stress", 
+                     "performance", "environment"))) |>
+  ggpairs()
+
+```
+3. Corrlations
+
+```{r}
+ggplot(jobsat,aes(x=environment,y=jobsatisfaction)) + geom_point() + geom_smooth()
+```
+
+## Fit the model
+```{r}
+lm4 <- lm(jobsatisfaction ~ currentsalary + stress + performance + environment,
+          data=jobsat, na.action=na.omit)
+summary(lm4)
+```
+```{r}
+anova(lm4)
+```
+R-squared = 1 - SSresid/SStotal
+
+```{r}
+SSreg <- (4500+2500+2200+400)
+SStot <- 5600+SSreg
+SSreg/SStot
+```
+
+```{r}
+
+bs <- coef(lm4)
+names(bs) <-paste("b",0:4,sep="_")
+print(bs,digits=3)
+```
+
+```{r}
+plot(lm4)
+
+```
+

@@ -103,6 +103,17 @@ add a lowess curve.
 
 Use the model `success ~ attempt` Write up a summary of the results.
 
+```{r}
+lc1 <- glm(success~attempt,data=homework,family=binomial())
+summary(lc1)
+
+```
+
+```{r}
+lc1$null.deviance-lc1$deviance
+1-pchisq(lc1$null.deviance-lc1$deviance,1)
+```
+
 ## 4. Interpret the slope
 
 Explain in words what the slope means.
@@ -117,6 +128,12 @@ Fit both the model `success ~ attempt + group` (no interaction with
 slope) and `success ~ attempt * group` (adds an interaction) and compare
 them to the no group model `success ~ attempt` which you fit before.
 Which model do you like better and why?
+
+```{r}
+lc2 <- glm(success~attempt+group,data=homework,family=binomial())
+lc3 <- glm(success~attempt*group,data=homework,family=binomial())
+lc2$deviance-lc3$deviance
+```
 
 ## 7. Describe the model you picked in words and equations.
 
